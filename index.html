@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+
+  <title>The Swing Lab</title>
+
+  <style>
+    :root {
+      --red: #d62828;
+      --red-dark: #b91f1f;
+      --black: #111111;
+      --charcoal: #242424;
+      --gray: #6d7175;
+      --gray-light: #e8e9eb;
+      --off-white: #f7f7f5;
+      --white: #ffffff;
+      --green: #2d7b46;
+      --gold: #d7aa42;
+      --shadow: 0 12px 30px rgba(0,0,0,.08);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--off-white);
+      color: var(--black);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 560px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--off-white);
+      padding-bottom: 94px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ---------- HEADER ---------- */
+
+    .topbar {
+      background:
+        linear-gradient(145deg, #0c0c0c 0%, #222 70%, #2f2f2f 100%);
+      color: white;
+      padding:
+        calc(env(safe-area-inset-top) + 22px)
+        22px
+        28px;
+      border-radius: 0 0 30px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topbar::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: rgba(214,40,40,.17);
+      top: -85px;
+      right: -55px;
+    }
+
+    .brand-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: var(--red);
+      font-size: 29px;
+      box-shadow: 0 8px 20px rgba(214,40,40,.28);
+    }
+
+    .brand-name {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.6px;
+    }
+
+    .brand-tagline {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #cfcfcf;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .avatar {
+      position: relative;
+      z-index: 2;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--red);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 20px;
+      border: 3px solid rgba(255,255,255,.2);
+    }
+
+    /* ---------- PAGE ---------- */
+
+    .page {
+      padding: 22px 18px 28px;
+    }
+
+    .eyebrow {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 7px;
+      font-size: 30px;
+      line-height: 1.08;
+      letter-spacing: -.9px;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 21px;
+      letter-spacing: -.4px;
+    }
+
+    .subtle {
+      color: var(--gray);
+      line-height: 1.5;
+    }
+
+    /* ---------- HOME HERO ---------- */
+
+    .hello {
+      padding-top: 24px;
+      padding-bottom: 15px;
+    }
+
+    .hello h1 {
+      font-size: 32px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      min-height: 126px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #ededed;
+    }
+
+    .stat-icon {
+      font-size: 24px;
+    }
+
+    .stat-number {
+      font-size: 31px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      color: var(--gray);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    /* ---------- CARDS ---------- */
+
+    .section-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid #ededed;
+    }
+
+    .practice-focus {
+      background:
+        linear-gradient(145deg, #fff 0%, #fff 63%, #f6eeee 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .practice-focus::after {
+      content: "⛳";
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      font-size: 55px;
+      opacity: .16;
+    }
+
+    .assignment-count {
+      color: var(--red);
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .primary-button {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      background: var(--red);
+      color: white;
+      padding: 16px 18px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(214,40,40,.2);
+    }
+
+    .primary-button:active {
+      transform: scale(.985);
+      background: var(--red-dark);
+    }
+
+    .secondary-button {
+      width: 100%;
+      border: 1px solid #d8d8d8;
+      border-radius: 16px;
+      background: white;
+      color: var(--black);
+      padding: 15px 18px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .mini-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mini-header h2 {
+      margin-bottom: 0;
+    }
+
+    .text-button {
+      border: 0;
+      background: transparent;
+      color: var(--red);
+      font-weight: 800;
+      padding: 5px;
+    }
+
+    /* ---------- GAME CARDS ---------- */
+
+    .game-card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border: 0;
+      background: white;
+      width: 100%;
+      padding: 16px;
+      border-radius: 19px;
+      text-align: left;
+      box-shadow: 0 7px 20px rgba(0,0,0,.06);
+      border: 1px solid #ededed;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .game-card:active {
+      transform: scale(.99);
+    }
+
+    .game-icon {
+      width: 54px;
+      height: 54px;
+      flex: 0 0 54px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: #f4eeee;
+      font-size: 29px;
+    }
+
+    .game-copy {
+      flex: 1;
+    }
+
+    .game-title {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 4px;
+      color: var(--black);
+    }
+
+    .game-meta {
+      font-size: 13px;
+      color: var(--gray);
+      font-weight: 650;
+    }
+
+    .chevron {
+      color: var(--red);
+      font-size: 25px;
+      font-weight: 400;
+    }
+
+    .coming-soon {
+      opacity: .57;
+    }
+
+    /* ---------- PROGRESS ---------- */
+
+    .xp-bar-shell {
+      background: #e8e8e8;
+      border-radius: 99px;
+      height: 12px;
+      overflow: hidden;
+      margin: 14px 0 7px;
+    }
+
+    .xp-bar {
+      background: linear-gradient(90deg, var(--red), #f04a4a);
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    .achievement {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #f7f7f7;
+      border-radius: 18px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+
+    .achievement-icon {
+      font-size: 30px;
+      width: 48px;
+      text-align: center;
+    }
+
+    .achievement-title {
+      font-weight: 900;
+      margin-bottom: 3px;
+    }
+
+    .achievement-detail {
+      color: var(--gray);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* ---------- GAME PAGE ---------- */
+
+    .game-page {
+      min-height: 100vh;
+      background: var(--off-white);
+      padding-bottom: 28px;
+    }
+
+    .game-header {
+      background:
+        linear-gradient(145deg, #111 0%, #292929 100%);
+      color: white;
+      padding:
+        calc(env(safe-area-inset-top) + 17px)
+        18px
+        31px;
+      border-radius: 0 0 32px 32px;
+    }
+
+    .back-button {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(255,255,255,.1);
+      color: white;
+      font-size: 24px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 22px;
+    }
+
+    .game-header .eyebrow {
+      color: #ff6a6a;
+    }
+
+    .game-header h1 {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    .game-header p {
+      color: #c9c9c9;
+      margin-bottom: 0;
+    }
+
+    .game-content {
+      padding: 18px;
+    }
+
+    .rule-section {
+      margin-bottom: 22px;
+    }
+
+    .rule-section h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+
+    .rule-section p {
+      color: #484848;
+      line-height: 1.58;
+      margin-bottom: 0;
+    }
+
+    .trajectory-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 9px;
+      margin: 16px 0 6px;
+    }
+
+    .trajectory {
+      border-radius: 17px;
+      padding: 14px 6px;
+      text-align: center;
+      background: #f4f4f4;
+      border: 1px solid #e4e4e4;
+    }
+
+    .trajectory-icon {
+      font-size: 23px;
+      margin-bottom: 6px;
+    }
+
+    .trajectory-name {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .goal-box {
+      background: var(--black);
+      color: white;
+      border-radius: 22px;
+      padding: 19px;
+      margin-bottom: 18px;
+    }
+
+    .goal-box .eyebrow {
+      color: #ff6a6a;
+    }
+
+    .goal-box strong {
+      font-size: 19px;
+      line-height: 1.45;
+      display: block;
+    }
+
+    .restart-warning {
+      background: #fff3f3;
+      border-left: 5px solid var(--red);
+      border-radius: 14px;
+      padding: 15px 16px;
+      margin-bottom: 24px;
+      line-height: 1.45;
+      font-weight: 700;
+      color: #3b3b3b;
+    }
+
+    .put-phone-away {
+      text-align: center;
+      color: var(--gray);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 14px 0 22px;
+    }
+
+    /* ---------- COMPLETION ---------- */
+
+    .completion-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(10,10,10,.88);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      backdrop-filter: blur(8px);
+    }
+
+    .completion-card {
+      width: min(100%, 430px);
+      background: white;
+      border-radius: 30px;
+      padding: 30px 22px 22px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,.3);
+      animation: rewardPop .42s ease;
+    }
+
+    @keyframes rewardPop {
+      0% {
+        transform: scale(.83);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.035);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .duck-reward {
+      width: 118px;
+      height: 118px;
+      margin: 0 auto 17px;
+      background:
+        radial-gradient(circle at center, #fff 0%, #fff 52%, #eee 53%, #eee 100%);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 65px;
+      border: 7px solid var(--red);
+      box-shadow: 0 10px 28px rgba(214,40,40,.18);
+    }
+
+    .completion-card h2 {
+      font-size: 29px;
+      margin-bottom: 7px;
+    }
+
+    .reward-title {
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 950;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .reward-xp {
+      font-size: 38px;
+      font-weight: 950;
+      letter-spacing: -1.5px;
+      margin: 18px 0 4px;
+    }
+
+    .reward-detail {
+      color: var(--gray);
+      margin-bottom: 22px;
+    }
+
+    /* ---------- NAV ---------- */
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 560px);
+      background: rgba(255,255,255,.97);
+      border-top: 1px solid #e5e5e5;
+      padding:
+        9px
+        12px
+        calc(env(safe-area-inset-bottom) + 8px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      backdrop-filter: blur(15px);
+    }
+
+    .nav-button {
+      border: 0;
+      background: transparent;
+      color: #7a7a7a;
+      padding: 4px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 2px;
+      filter: grayscale(1);
+    }
+
+    .nav-button.active {
+      color: var(--red);
+    }
+
+    .nav-button.active .nav-icon {
+      filter: none;
+    }
+
+    /* ---------- EMPTY / FUTURE ---------- */
+
+    .future-card {
+      border: 2px dashed #d7d7d7;
+      border-radius: 22px;
+      padding: 24px 20px;
+      text-align: center;
+      color: var(--gray);
+      margin-top: 15px;
+    }
+
+    .future-card .future-icon {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    @media (min-width: 600px) {
+      body {
+        background: #e9e9e7;
+      }
+
+      .app,
+      .game-page {
+        box-shadow: 0 0 40px rgba(0,0,0,.08);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="app" id="mainApp">
+
+    <header class="topbar">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-mark">🦆</div>
+
+          <div>
+            <div class="brand-name">The Swing Lab</div>
+            <div class="brand-tagline">Hard Work Pays Off.</div>
+          </div>
+        </div>
+
+        <div class="avatar">M</div>
+      </div>
+    </header>
+
+    <!-- HOME -->
+
+    <section class="page screen" id="homeScreen">
+
+      <div class="hello">
+        <div class="eyebrow">Welcome Back</div>
+        <h1>Ready to get better?</h1>
+        <p class="subtle">
+          Today's work is another step forward.
+        </p>
+      </div>
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div>
+            <div class="stat-number" id="homeStreak">1</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div>
+            <div class="stat-number" id="homeXp">0</div>
+            <div class="stat-label">Total XP</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="section-card practice-focus">
+        <div class="eyebrow">Today's Practice</div>
+        <h2>Short Game Focus</h2>
+        <div class="assignment-count" id="todayAssignmentText">
+          1 game ready
+        </div>
+
+        <button class="primary-button" onclick="showScreen('practice')">
+          Start Practice
+        </button>
+      </div>
+
+      <div class="section-card">
+        <div class="mini-header">
+          <h2>Today's Goal</h2>
+        </div>
+
+        <p class="subtle" style="margin-bottom:0;">
+          Complete <strong>Low, Medium, High</strong>. Execute all three
+          trajectories and get each ball up-and-down.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <div class="mini-header">
+          <h2>Recent Achievement</h2>
+        </div>
+
+        <div class="achievement">
+          <div class="achievement-icon" id="recentAchievementIcon">🧪</div>
+
+          <div>
+            <div class="achievement-title" id="recentAchievementTitle">
+              The Lab Is Open
+            </div>
+
+            <div class="achievement-detail" id="recentAchievementDetail">
+              Your first Swing Lab practice is ready.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PRACTICE -->
+
+    <section class="page screen hidden" id="practiceScreen">
+
+      <div class="hello">
+        <div class="eyebrow">Practice</div>
+        <h1>Today's Work</h1>
+        <p class="subtle">
+          Pick the game, learn the goal, then put the phone away and play.
+        </p>
+      </div>
+
+      <div class="section-card">
+
+        <div class="mini-header">
+          <h2>Assigned Today</h2>
+        </div>
+
+        <button
+          class="game-card"
+          id="lowMediumHighCard"
+          onclick="openLowMediumHigh()"
+        >
+          <div class="game-icon">⛳</div>
+
+          <div class="game-copy">
+            <div class="game-title">Low, Medium, High</div>
+            <div class="game-meta" id="lmhStatus">
+              Short Game • Pressure Game
+            </div>
+          </div>
+
+          <div class="chevron">›</div>
+        </button>
+
+      </div>
+
+      <div class="section-card">
+
+        <div class="mini-header">
+          <h2>Game Library</h2>
+          <button class="text-button">View All</button>
+        </div>
+
+        <button class="game-card" onclick="openLowMediumHigh()">
+          <div class="game-icon">🎯</div>
+
+          <div class="game-copy">
+            <div class="game-title">Low, Medium, High</div>
+            <div class="game-meta">Short Game • Available</div>
+          </div>
+
+          <div class="chevron">›</div>
+        </button>
+
+        <div class="game-card coming-soon">
+          <div class="game-icon">🥅</div>
+
+          <div class="game-copy">
+            <div class="game-title">Putting Games</div>
+            <div class="game-meta">Coming soon</div>
+          </div>
+        </div>
+
+        <div class="game-card coming-soon">
+          <div class="game-icon">🏌️</div>
+
+          <div class="game-copy">
+            <div class="game-title">Full Swing Games</div>
+            <div class="game-meta">Coming soon</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- PROGRESS -->
+
+    <section class="page screen hidden" id="progressScreen">
+
+      <div class="hello">
+        <div class="eyebrow">Progress</div>
+        <h1>Keep Building</h1>
+        <p class="subtle">
+          The score isn't the only thing that improves. The work adds up.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <div class="eyebrow">Level Progress</div>
+        <h2 id="levelTitle">Level 1</h2>
+
+        <div class="xp-bar-shell">
+          <div class="xp-bar" id="xpBar"></div>
+        </div>
+
+        <p class="subtle" id="levelDetail" style="margin-bottom:0;">
+          0 / 100 XP
+        </p>
+      </div>
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div>
+            <div class="stat-number" id="gamesCompleted">0</div>
+            <div class="stat-label">Games Completed</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div>
+            <div class="stat-number" id="progressStreak">1</div>
+            <div class="stat-label">Current Streak</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="section-card">
+        <h2>Achievements</h2>
+
+        <div class="achievement">
+          <div class="achievement-icon">🧪</div>
+          <div>
+            <div class="achievement-title">The Lab Is Open</div>
+            <div class="achievement-detail">
+              Started your Swing Lab journey.
+            </div>
+          </div>
+        </div>
+
+        <div class="achievement" id="firstGameAchievement" style="opacity:.45;">
+          <div class="achievement-icon">🦆</div>
+          <div>
+            <div class="achievement-title">First Flight</div>
+            <div class="achievement-detail">
+              Complete your first practice game.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- PROFILE -->
+
+    <section class="page screen hidden" id="profileScreen">
+
+      <div class="hello">
+        <div class="eyebrow">Profile</div>
+        <h1>Mackenzie's Lab</h1>
+        <p class="subtle">
+          Built to grow with the golfer.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <h2>The Swing Lab</h2>
+        <p class="subtle">
+          A golf development platform built around practice,
+          progress, pressure and consistency.
+        </p>
+
+        <strong>Hard Work Pays Off.</strong>
+      </div>
+
+      <div class="future-card">
+        <div class="future-icon">📈</div>
+        <strong>Competition & Stats</strong>
+        <p>
+          Tournament performance and live scoring can live here in the future.
+        </p>
+      </div>
+
+      <div class="future-card">
+        <div class="future-icon">🎓</div>
+        <strong>College Recruiting</strong>
+        <p>
+          College lists, recruiting milestones and checklists can be added when
+          the time comes.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- NAVIGATION -->
+
+    <nav class="bottom-nav">
+
+      <button
+        class="nav-button active"
+        id="navHome"
+        onclick="showScreen('home')"
+      >
+        <span class="nav-icon">🏠</span>
+        Home
+      </button>
+
+      <button
+        class="nav-button"
+        id="navPractice"
+        onclick="showScreen('practice')"
+      >
+        <span class="nav-icon">⛳</span>
+        Practice
+      </button>
+
+      <button
+        class="nav-button"
+        id="navProgress"
+        onclick="showScreen('progress')"
+      >
+        <span class="nav-icon">📊</span>
+        Progress
+      </button>
+
+      <button
+        class="nav-button"
+        id="navProfile"
+        onclick="showScreen('profile')"
+      >
+        <span class="nav-icon">🧪</span>
+        Lab
+      </button>
+
+    </nav>
+
+  </main>
+
+  <!-- LOW MEDIUM HIGH GAME -->
+
+  <section class="game-page hidden" id="lowMediumHighPage">
+
+    <header class="game-header">
+
+      <button class="back-button" onclick="closeGame()">
+        ‹
+      </button>
+
+      <div class="eyebrow">Short Game • Pressure Game</div>
+
+      <h1>Low, Medium, High</h1>
+
+      <p>
+        One target. Three trajectories. Three up-and-downs.
+      </p>
+
+    </header>
+
+    <div class="game-content">
+
+      <div class="section-card">
+
+        <div class="rule-section">
+          <h3>Setup</h3>
+
+          <p>
+            Pick a hole roughly <strong>30 feet away</strong>.
+            Use the same target for the entire game.
+          </p>
+        </div>
+
+        <div class="rule-section">
+          <h3>How To Play</h3>
+
+          <p>
+            Hit one chip using each of the three required trajectories:
+          </p>
+
+          <div class="trajectory-row">
+
+            <div class="trajectory">
+              <div class="trajectory-icon">↗</div>
+              <div class="trajectory-name">LOW</div>
+            </div>
+
+            <div class="trajectory">
+              <div class="trajectory-icon">⤴</div>
+              <div class="trajectory-name">MEDIUM</div>
+            </div>
+
+            <div class="trajectory">
+              <div class="trajectory-icon">⬆</div>
+              <div class="trajectory-name">HIGH</div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="rule-section">
+          <h3>Finish The Shot</h3>
+
+          <p>
+            After each chip, play the ball out. The chip only counts when you
+            get the ball <strong>up-and-down</strong>.
+          </p>
+        </div>
+
+        <div class="goal-box">
+          <div class="eyebrow">The Goal</div>
+
+          <strong>
+            Successfully complete the Low, Medium and High up-and-downs in the
+            same run.
+          </strong>
+        </div>
+
+        <div class="restart-warning">
+          Miss any of the three up-and-downs?
+          <strong>Start the game over from Low.</strong>
+        </div>
+
+        <div class="put-phone-away">
+          📵 Know the game? Put the phone away and go play.
+        </div>
+
+        <button
+          class="primary-button"
+          id="completeGameButton"
+          onclick="completeLowMediumHigh()"
+        >
+          ✓ Game Completed
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- COMPLETION REWARD -->
+
+  <div class="completion-overlay hidden" id="completionOverlay">
+
+    <div class="completion-card">
+
+      <div class="reward-title">
+        Hard Work Pays Off.
+      </div>
+
+      <div class="duck-reward">
+        🦆
+      </div>
+
+      <h2>Game Complete!</h2>
+
+      <p class="subtle">
+        Low, Medium, High
+      </p>
+
+      <div class="reward-xp">
+        +25 XP
+      </div>
+
+      <div class="reward-detail">
+        First flight complete. Keep building.
+      </div>
+
+      <button
+        class="primary-button"
+        onclick="finishReward()"
+      >
+        Continue Practice
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    /* -----------------------------
+       SWING LAB STATE
+    ----------------------------- */
+
+    const defaultState = {
+      xp: 0,
+      streak: 1,
+      gamesCompleted: 0,
+      lowMediumHighCompleted: false
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem("swingLabState");
+
+        if (saved) {
+          return {
+            ...defaultState,
+            ...JSON.parse(saved)
+          };
+        }
+      } catch (error) {
+        console.log("Could not load saved Swing Lab data.");
+      }
+
+      return { ...defaultState };
+    }
+
+    function saveState() {
+      localStorage.setItem(
+        "swingLabState",
+        JSON.stringify(state)
+      );
+    }
+
+    /* -----------------------------
+       NAVIGATION
+    ----------------------------- */
+
+    function showScreen(screenName) {
+
+      document
+        .querySelectorAll(".screen")
+        .forEach(screen => screen.classList.add("hidden"));
+
+      document
+        .querySelectorAll(".nav-button")
+        .forEach(button => button.classList.remove("active"));
+
+      const screen =
+        document.getElementById(screenName + "Screen");
+
+      if (screen) {
+        screen.classList.remove("hidden");
+      }
+
+      const navId =
+        "nav" +
+        screenName.charAt(0).toUpperCase() +
+        screenName.slice(1);
+
+      const navButton =
+        document.getElementById(navId);
+
+      if (navButton) {
+        navButton.classList.add("active");
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      updateUI();
+    }
+
+    /* -----------------------------
+       GAME
+    ----------------------------- */
+
+    function openLowMediumHigh() {
+
+      document
+        .getElementById("mainApp")
+        .classList.add("hidden");
+
+      document
+        .getElementById("lowMediumHighPage")
+        .classList.remove("hidden");
+
+      window.scrollTo(0, 0);
+    }
+
+    function closeGame() {
+
+      document
+        .getElementById("lowMediumHighPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("mainApp")
+        .classList.remove("hidden");
+
+      showScreen("practice");
+    }
+
+    function completeLowMediumHigh() {
+
+      if (!state.lowMediumHighCompleted) {
+
+        state.lowMediumHighCompleted = true;
+        state.gamesCompleted += 1;
+        state.xp += 25;
+
+        saveState();
+      }
+
+      document
+        .getElementById("completionOverlay")
+        .classList.remove("hidden");
+
+      updateUI();
+    }
+
+    function finishReward() {
+
+      document
+        .getElementById("completionOverlay")
+        .classList.add("hidden");
+
+      document
+        .getElementById("lowMediumHighPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("mainApp")
+        .classList.remove("hidden");
+
+      showScreen("home");
+    }
+
+    /* -----------------------------
+       UI
+    ----------------------------- */
+
+    function updateUI() {
+
+      document.getElementById("homeXp").textContent =
+        state.xp;
+
+      document.getElementById("homeStreak").textContent =
+        state.streak;
+
+      document.getElementById("progressStreak").textContent =
+        state.streak;
+
+      document.getElementById("gamesCompleted").textContent =
+        state.gamesCompleted;
+
+      const level =
+        Math.floor(state.xp / 100) + 1;
+
+      const xpWithinLevel =
+        state.xp % 100;
+
+      document.getElementById("levelTitle").textContent =
+        "Level " + level;
+
+      document.getElementById("levelDetail").textContent =
+        xpWithinLevel + " / 100 XP";
+
+      document.getElementById("xpBar").style.width =
+        xpWithinLevel + "%";
+
+      if (state.lowMediumHighCompleted) {
+
+        document.getElementById("lmhStatus").textContent =
+          "✓ Completed Today";
+
+        document.getElementById("todayAssignmentText").textContent =
+          "Today's game complete ✓";
+
+        document.getElementById("recentAchievementIcon").textContent =
+          "🦆";
+
+        document.getElementById("recentAchievementTitle").textContent =
+          "First Flight";
+
+        document.getElementById("recentAchievementDetail").textContent =
+          "Completed Low, Medium, High.";
+
+        document.getElementById("firstGameAchievement").style.opacity =
+          "1";
+
+        document.getElementById("completeGameButton").textContent =
+          "✓ Completed";
+
+      }
+
+    }
+
+    updateUI();
+
+  </script>
+
+</body>
+</html>
