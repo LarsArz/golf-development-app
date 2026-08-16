@@ -1,271 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111111">
-<title>The Swing Lab — In-Round Tracker Test</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111111">
+<title>The Swing Lab — Round Tracker Test</title>
 <style>
-:root{
-  --red:#d62828;--black:#111;--charcoal:#262626;--gray:#6f7378;
-  --light:#f5f5f3;--white:#fff;--line:#e4e4e4;--green:#2f7a48;
-  --shadow:0 10px 26px rgba(0,0,0,.08)
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#e9e9e7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--black)}
-button{font:inherit}
-.app{max-width:560px;min-height:100vh;margin:0 auto;background:var(--light);padding-bottom:28px}
-header{background:linear-gradient(145deg,#0d0d0d,#292929);color:#fff;padding:calc(env(safe-area-inset-top) + 20px) 20px 24px;border-radius:0 0 28px 28px}
-.brand{font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#ff6a6a;margin-bottom:8px}
-h1{margin:0 0 7px;font-size:29px;letter-spacing:-.7px}
-header p{margin:0;color:#c9c9c9;line-height:1.45;font-size:14px}
-main{padding:18px}
-.holebar{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
-.holelabel{font-size:12px;color:var(--gray);font-weight:850;text-transform:uppercase;letter-spacing:.8px}
-.holenum{font-size:24px;font-weight:950}
-.smallbtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 11px;font-weight:850;color:var(--red)}
-.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
-.eyebrow{font-size:11px;font-weight:950;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:6px}
-h2{font-size:23px;margin:0 0 5px;letter-spacing:-.4px}
-.help{color:var(--gray);font-size:13px;line-height:1.45;margin:0 0 16px}
-.options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.options.five .option:last-child{grid-column:span 2}
-.option{border:1.5px solid #d8d8d8;background:#fafafa;border-radius:16px;min-height:58px;padding:12px 10px;font-weight:900;color:#252525}
-.option.selected{background:#111;color:#fff;border-color:#111}
-.option.good.selected{background:var(--green);border-color:var(--green)}
-.option.danger.selected{background:var(--red);border-color:var(--red)}
-.followup{margin-top:16px;padding-top:16px;border-top:1px solid #ececec}
-.followup-title{font-size:12px;font-weight:900;color:#555;margin-bottom:10px}
-.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.pills.two{grid-template-columns:repeat(2,1fr)}
-.pill{border:1.5px solid #d8d8d8;background:#fff;border-radius:14px;padding:11px 7px;font-weight:850}
-.pill.selected{background:#111;color:#fff;border-color:#111}
-.optional{font-size:10px;color:#999;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-left:4px}
-.summary{background:#111;color:#fff;border-radius:20px;padding:16px;margin-bottom:14px}
-.summary-title{font-size:11px;color:#ff6a6a;font-weight:950;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.summary-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #363636;font-size:14px}
-.summary-row:last-child{border-bottom:0}
-.summary-row span:first-child{color:#bfbfbf}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.primary,.secondary{border:0;border-radius:16px;padding:15px;font-weight:950}
-.primary{background:var(--red);color:#fff}
-.secondary{background:#fff;color:#111;border:1px solid var(--line)}
-.history{margin-top:14px}
-.entry{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px;font-size:13px;line-height:1.5}
-.entry strong{display:block;margin-bottom:3px}
-.muted{color:var(--gray)}
-.hidden{display:none}
-</style>
-</head>
-<body>
-<div class="app">
-<header>
-  <div class="brand">The Swing Lab • Test Build</div>
-  <h1>Drive + Approach Tracker</h1>
-  <p>Two quick questions per hole. Tap the result, then the follow-up when needed.</p>
-</header>
+:root{--red:#d62828;--black:#111;--gray:#6f7378;--light:#f5f5f3;--line:#e4e4e4;--green:#2f7a48;--gold:#c99a28;--shadow:0 10px 26px rgba(0,0,0,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#e9e9e7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--black)}button{font:inherit}
+.app{max-width:560px;min-height:100vh;margin:0 auto;background:var(--light);padding-bottom:28px}header{background:linear-gradient(145deg,#0d0d0d,#292929);color:#fff;padding:calc(env(safe-area-inset-top) + 20px) 20px 24px;border-radius:0 0 28px 28px}
+.brand{font-size:12px;font-weight:950;letter-spacing:1.1px;text-transform:uppercase;color:#ff6a6a;margin-bottom:8px}h1{margin:0 0 7px;font-size:29px}header p{margin:0;color:#c9c9c9;line-height:1.45;font-size:14px}main{padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.holelabel{font-size:11px;color:var(--gray);font-weight:900;text-transform:uppercase;letter-spacing:.8px}.holenum{font-size:28px;font-weight:950}.smallbtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;font-weight:850;color:var(--red)}
+.eyebrow{font-size:11px;font-weight:950;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:6px}h2{font-size:23px;margin:0 0 5px}.help{color:var(--gray);font-size:13px;line-height:1.45;margin:0 0 16px}
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.options.three{grid-template-columns:repeat(3,1fr)}.options.five .option:last-child{grid-column:span 2}
+.option,.pill{border:1.5px solid #d8d8d8;background:#fafafa;border-radius:16px;min-height:56px;padding:11px 9px;font-weight:900;color:#252525}.option.selected,.pill.selected{background:#111;color:#fff;border-color:#111}.option.good.selected{background:var(--green);border-color:var(--green)}.option.danger.selected{background:var(--red);border-color:var(--red)}
+.followup{margin-top:16px;padding-top:16px;border-top:1px solid #ececec}.followup-title{font-size:12px;font-weight:900;color:#555;margin-bottom:10px}.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pills.five{grid-template-columns:repeat(5,1fr)}.pills.six{grid-template-columns:repeat(3,1fr)}.pill{min-height:46px;border-radius:14px;background:#fff;padding:9px 5px}.optional{font-size:10px;color:#999;font-weight:800;text-transform:uppercase}
+.note{margin-top:14px;background:#edf7f0;border-radius:14px;padding:12px 13px;font-size:12px;color:#285c38;line-height:1.45}.summary{background:#111;color:#fff;border-radius:20px;padding:16px;margin-bottom:14px}.summary-title{font-size:11px;color:#ff6a6a;font-weight:950;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}.summary-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #363636;font-size:14px}.summary-row:last-child{border-bottom:0}.summary-row span:first-child{color:#bfbfbf}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.secondary{border:0;border-radius:16px;padding:15px;font-weight:950}.primary{background:var(--red);color:#fff}.secondary{background:#fff;color:#111;border:1px solid var(--line)}.hidden{display:none!important}
+.entry{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px;font-size:13px;line-height:1.5}.muted{color:var(--gray)}
+@media(max-width:390px){.pills.five{grid-template-columns:repeat(3,1fr)}}
+</style></head>
+<body><div class="app"><header><div class="brand">The Swing Lab • In-Round Test</div><h1>Par-Aware Tracker</h1><p>The hole type controls which questions appear. Maximum information, minimum tapping.</p></header><main>
 
-<main>
-  <div class="holebar">
-    <div>
-      <div class="holelabel">Current Hole</div>
-      <div class="holenum" id="holeNum">1</div>
-    </div>
-    <button class="smallbtn" onclick="resetCurrent()">Clear Hole</button>
-  </div>
+<section class="card"><div class="row"><div><div class="holelabel">Current Hole</div><div class="holenum" id="holeNum">1</div></div><button class="smallbtn" onclick="resetCurrent()">Clear Hole</button></div><div class="followup"><div class="followup-title">Hole Par</div><div class="pills"><button class="pill" onclick="selectPar(this,3)">Par 3</button><button class="pill" onclick="selectPar(this,4)">Par 4</button><button class="pill" onclick="selectPar(this,5)">Par 5</button></div></div></section>
 
-  <section class="card">
-    <div class="eyebrow">1 • Tee Shot</div>
-    <h2>Drive</h2>
-    <p class="help">How did the drive perform?</p>
+<section class="card hidden" id="driveCard"><div class="eyebrow">Tee Shot</div><h2>Drive</h2><p class="help">How did the driver perform?</p><div class="options five" id="driveMain"><button class="option good" onclick="selectDrive(this,'Full')">Full</button><button class="option" onclick="selectDrive(this,'Short')">Short</button><button class="option danger" onclick="selectDrive(this,'Punch')">Punch</button><button class="option danger" onclick="selectDrive(this,'Lost / OB')">Lost / OB</button><button class="option" onclick="selectDrive(this,'N/A')">N/A — No Driver</button></div><div class="followup hidden" id="driveFollow"><div class="followup-title" id="driveFollowTitle"></div><div class="pills" id="driveLocation"></div></div></section>
 
-    <div class="options five" id="driveMain">
-      <button class="option good" data-value="Full" onclick="selectDrive(this)">Full</button>
-      <button class="option" data-value="Short" onclick="selectDrive(this)">Short</button>
-      <button class="option danger" data-value="Punch" onclick="selectDrive(this)">Punch</button>
-      <button class="option danger" data-value="Lost / OB" onclick="selectDrive(this)">Lost / OB</button>
-      <button class="option" data-value="N/A" onclick="selectDrive(this)">N/A — No Driver</button>
-    </div>
+<section class="card hidden" id="secondCard"><div class="eyebrow">Par 5 • Second Shot</div><h2>Second Shot</h2><p class="help">Distance bucket first, then result.</p><div class="followup-title">Distance</div><div class="pills" id="secondDistance"><button class="pill" onclick="pick(this,'secondDistance','150–180')">150–180</button><button class="pill" onclick="pick(this,'secondDistance','180–210')">180–210</button><button class="pill" onclick="pick(this,'secondDistance','210+')">210+</button></div><div class="followup"><div class="followup-title">Result</div><div class="options three" id="secondResult"><button class="option good" onclick="selectSecond(this,'Hit')">Hit</button><button class="option" onclick="selectSecond(this,'Full')">Full</button><button class="option" onclick="selectSecond(this,'Short')">Short</button></div></div><div class="followup hidden" id="secondModWrap"><div class="followup-title">Miss / contact <span class="optional">optional</span></div><div class="pills five" id="secondModifier"><button class="pill" onclick="pickOptional(this,'secondModifier','Left')">Left</button><button class="pill" onclick="pickOptional(this,'secondModifier','Right')">Right</button><button class="pill" onclick="pickOptional(this,'secondModifier','Fat')">Fat</button><button class="pill" onclick="pickOptional(this,'secondModifier','Thin')">Thin</button><button class="pill" onclick="pickOptional(this,'secondModifier','Shank')">Shank</button></div></div><div class="note hidden" id="ugirNote"><strong>UGIR:</strong> Green reached in two. Approach and Chip/Pitch disappear.</div></section>
 
-    <div class="followup hidden" id="driveFollow">
-      <div class="followup-title" id="driveFollowTitle">Where did it finish?</div>
-      <div class="pills" id="driveLocation"></div>
-    </div>
-  </section>
+<section class="card hidden" id="approachCard"><div class="eyebrow" id="approachEyebrow">Approach</div><h2>Approach</h2><p class="help">Distance bucket, result, then optional contact error.</p><div class="followup-title">Distance</div><div class="pills five" id="approachDistance"><button class="pill" onclick="pick(this,'approachDistance','<75')">&lt;75</button><button class="pill" onclick="pick(this,'approachDistance','75–100')">75–100</button><button class="pill" onclick="pick(this,'approachDistance','101–125')">101–125</button><button class="pill" onclick="pick(this,'approachDistance','126–150')">126–150</button><button class="pill" onclick="pick(this,'approachDistance','150+')">150+</button></div><div class="followup"><div class="followup-title">Result</div><div class="options five" id="approachResult"><button class="option good" onclick="selectApproach(this,'Hit')">Hit</button><button class="option" onclick="selectApproach(this,'Left')">Left</button><button class="option" onclick="selectApproach(this,'Right')">Right</button><button class="option" onclick="selectApproach(this,'Short')">Short</button><button class="option" onclick="selectApproach(this,'Long')">Long</button></div></div><div class="followup" id="contactWrap"><div class="followup-title">Contact error <span class="optional">optional</span></div><div class="pills" id="contact"><button class="pill" onclick="pickOptional(this,'contact','Fat')">Fat</button><button class="pill" onclick="pickOptional(this,'contact','Thin')">Thin</button><button class="pill" onclick="pickOptional(this,'contact','Shank')">Shank</button></div></div><div class="note hidden" id="girNote"><strong>GIR:</strong> Chip/Pitch is automatically removed.</div></section>
 
-  <section class="card">
-    <div class="eyebrow">2 • Approach</div>
-    <h2>Approach</h2>
-    <p class="help">First record the result. Then add a contact error only if there was one.</p>
+<section class="card hidden" id="shortCard"><div class="eyebrow">Short Game</div><h2>Chip / Pitch</h2><p class="help">How good was the recovery shot?</p><div class="options three" id="shortGame"><button class="option good" onclick="pick(this,'shortGame','Stuffed')">Stuffed</button><button class="option" onclick="pick(this,'shortGame','Hit')">Hit</button><button class="option danger" onclick="pick(this,'shortGame','Miss')">Miss</button></div></section>
 
-    <div class="options five" id="approachMain">
-      <button class="option good" data-value="Hit" onclick="selectApproach(this)">Hit</button>
-      <button class="option" data-value="Left" onclick="selectApproach(this)">Left</button>
-      <button class="option" data-value="Right" onclick="selectApproach(this)">Right</button>
-      <button class="option" data-value="Short" onclick="selectApproach(this)">Short</button>
-      <button class="option" data-value="Long" onclick="selectApproach(this)">Long</button>
-    </div>
+<section class="card hidden" id="puttsCard"><div class="eyebrow">On The Green</div><h2>Putts</h2><p class="help">Normal 3 and Bad 3 remain separate.</p><div class="pills six" id="putts"><button class="pill" onclick="pick(this,'putts','0')">0</button><button class="pill" onclick="pick(this,'putts','1')">1</button><button class="pill" onclick="pick(this,'putts','2')">2</button><button class="pill" onclick="pick(this,'putts','3')">3</button><button class="pill" onclick="pick(this,'putts','Bad 3')">Bad 3</button><button class="pill" onclick="pick(this,'putts','4+')">4+</button></div></section>
 
-    <div class="followup">
-      <div class="followup-title">
-        Contact error <span class="optional">optional</span>
-      </div>
-      <div class="pills">
-        <button class="pill" data-value="Fat" onclick="selectContact(this)">Fat</button>
-        <button class="pill" data-value="Thin" onclick="selectContact(this)">Thin</button>
-        <button class="pill" data-value="Shank" onclick="selectContact(this)">Shank</button>
-      </div>
-    </div>
-  </section>
+<section class="card hidden" id="penaltyCard"><div class="eyebrow">Final Check</div><h2>Penalty?</h2><div class="options" id="penalty"><button class="option" onclick="pick(this,'penalty','No')">No</button><button class="option danger" onclick="pick(this,'penalty','Yes')">Yes</button></div></section>
 
-  <div class="summary">
-    <div class="summary-title">Hole Summary</div>
-    <div class="summary-row"><span>Drive</span><strong id="sumDrive">—</strong></div>
-    <div class="summary-row"><span>Approach</span><strong id="sumApproach">—</strong></div>
-  </div>
-
-  <div class="actions">
-    <button class="secondary" onclick="resetCurrent()">Reset</button>
-    <button class="primary" onclick="saveHole()">Save + Next Hole</button>
-  </div>
-
-  <div class="history" id="history"></div>
-</main>
-</div>
-
+<div class="summary hidden" id="summaryBox"><div class="summary-title">Hole Summary</div><div class="summary-row"><span>Par</span><strong id="sumPar">—</strong></div><div class="summary-row hidden" id="driveRow"><span>Drive</span><strong id="sumDrive">—</strong></div><div class="summary-row hidden" id="secondRow"><span>2nd Shot</span><strong id="sumSecond">—</strong></div><div class="summary-row hidden" id="approachRow"><span>Approach</span><strong id="sumApproach">—</strong></div><div class="summary-row hidden" id="shortRow"><span>Chip/Pitch</span><strong id="sumShort">—</strong></div><div class="summary-row"><span>Putts</span><strong id="sumPutts">—</strong></div><div class="summary-row"><span>Penalty</span><strong id="sumPenalty">—</strong></div><div class="summary-row"><span>Derived</span><strong id="sumDerived">—</strong></div></div>
+<div class="actions hidden" id="actions"><button class="secondary" onclick="resetCurrent()">Reset</button><button class="primary" onclick="saveHole()">Save + Next Hole</button></div><div id="history"></div>
+</main></div>
 <script>
-let hole = 1;
-let current = {drive:null, driveLoc:null, approach:null, contact:null};
-let entries = [];
-
-function clearSelected(container){
-  document.querySelectorAll(container+" .option, "+container+" .pill").forEach(b=>b.classList.remove("selected"));
-}
-
-function selectDrive(btn){
-  document.querySelectorAll("#driveMain .option").forEach(b=>b.classList.remove("selected"));
-  btn.classList.add("selected");
-  current.drive = btn.dataset.value;
-  current.driveLoc = null;
-
-  const follow = document.getElementById("driveFollow");
-  const loc = document.getElementById("driveLocation");
-  const title = document.getElementById("driveFollowTitle");
-
-  loc.innerHTML = "";
-
-  if(current.drive === "N/A"){
-    follow.classList.add("hidden");
-  } else {
-    follow.classList.remove("hidden");
-    let choices = [];
-    if(current.drive === "Full" || current.drive === "Short"){
-      choices = ["Fairway","Left","Right"];
-      title.textContent = "Where did it finish?";
-    } else {
-      choices = ["Left","Right"];
-      title.textContent = current.drive === "Punch" ? "Which side caused the recovery?" : "Which side was it lost / OB?";
-    }
-
-    choices.forEach(v=>{
-      const b = document.createElement("button");
-      b.className = "pill";
-      b.textContent = v;
-      b.dataset.value = v;
-      b.onclick = ()=>selectDriveLocation(b);
-      loc.appendChild(b);
-    });
-  }
-  updateSummary();
-}
-
-function selectDriveLocation(btn){
-  document.querySelectorAll("#driveLocation .pill").forEach(b=>b.classList.remove("selected"));
-  btn.classList.add("selected");
-  current.driveLoc = btn.dataset.value;
-  updateSummary();
-}
-
-function selectApproach(btn){
-  document.querySelectorAll("#approachMain .option").forEach(b=>b.classList.remove("selected"));
-  btn.classList.add("selected");
-  current.approach = btn.dataset.value;
-  updateSummary();
-}
-
-function selectContact(btn){
-  const wasSelected = btn.classList.contains("selected");
-  document.querySelectorAll(".followup .pill").forEach(b=>{
-    if(b.closest("#driveFollow")) return;
-    b.classList.remove("selected");
-  });
-  if(wasSelected){
-    current.contact = null;
-  } else {
-    btn.classList.add("selected");
-    current.contact = btn.dataset.value;
-  }
-  updateSummary();
-}
-
-function updateSummary(){
-  let driveText = "—";
-  if(current.drive){
-    driveText = current.drive;
-    if(current.driveLoc) driveText += " • " + current.driveLoc;
-  }
-
-  let appText = current.approach || "—";
-  if(current.contact) appText += " • " + current.contact;
-
-  document.getElementById("sumDrive").textContent = driveText;
-  document.getElementById("sumApproach").textContent = appText;
-}
-
-function resetCurrent(){
-  current = {drive:null, driveLoc:null, approach:null, contact:null};
-  document.querySelectorAll(".option,.pill").forEach(b=>b.classList.remove("selected"));
-  document.getElementById("driveFollow").classList.add("hidden");
-  document.getElementById("driveLocation").innerHTML = "";
-  updateSummary();
-}
-
-function saveHole(){
-  if(!current.drive || !current.approach){
-    alert("Choose a Drive result and an Approach result first.");
-    return;
-  }
-  if(current.drive !== "N/A" && !current.driveLoc){
-    alert("Choose the drive location.");
-    return;
-  }
-
-  entries.unshift({
-    hole,
-    drive: current.drive + (current.driveLoc ? " • "+current.driveLoc : ""),
-    approach: current.approach + (current.contact ? " • "+current.contact : "")
-  });
-
-  hole++;
-  if(hole > 18) hole = 1;
-  document.getElementById("holeNum").textContent = hole;
-  renderHistory();
-  resetCurrent();
-}
-
-function renderHistory(){
-  const wrap = document.getElementById("history");
-  if(!entries.length){ wrap.innerHTML = ""; return; }
-
-  wrap.innerHTML = '<div class="eyebrow" style="margin-top:18px">Recent Test Entries</div>' +
-    entries.slice(0,5).map(e=>`
-      <div class="entry">
-        <strong>Hole ${e.hole}</strong>
-        <div><span class="muted">Drive:</span> ${e.drive}</div>
-        <div><span class="muted">Approach:</span> ${e.approach}</div>
-      </div>
-    `).join("");
-}
-</script>
-</body>
-</html>
+let hole=1,entries=[],s=blank();
+function blank(){return{par:null,drive:null,driveLoc:null,secondDistance:null,secondResult:null,secondModifier:null,approachDistance:null,approach:null,contact:null,shortGame:null,putts:null,penalty:null}}
+function clear(id){document.querySelectorAll("#"+id+" .selected").forEach(b=>b.classList.remove("selected"))}
+function pick(btn,key,val){clear(key);btn.classList.add("selected");s[key]=val;summary()}
+function pickOptional(btn,key,val){let was=btn.classList.contains("selected");clear(key);s[key]=was?null:val;if(!was)btn.classList.add("selected");summary()}
+function selectPar(btn,p){document.querySelectorAll('[onclick^="selectPar"]').forEach(b=>b.classList.remove("selected"));btn.classList.add("selected");s=blank();s.par=p;document.querySelectorAll("#driveCard .selected,#secondCard .selected,#approachCard .selected,#shortCard .selected,#puttsCard .selected,#penaltyCard .selected").forEach(b=>b.classList.remove("selected"));driveFollow.classList.add("hidden");driveLocation.innerHTML="";secondModWrap.classList.add("hidden");ugirNote.classList.add("hidden");girNote.classList.add("hidden");shortCard.classList.add("hidden");driveCard.classList.toggle("hidden",p===3);secondCard.classList.toggle("hidden",p!==5);approachCard.classList.remove("hidden");approachEyebrow.textContent=p===3?"Par 3 • Tee Shot":"Approach";puttsCard.classList.remove("hidden");penaltyCard.classList.remove("hidden");summaryBox.classList.remove("hidden");actions.classList.remove("hidden");flow();summary()}
+function selectDrive(btn,v){clear("driveMain");btn.classList.add("selected");s.drive=v;s.driveLoc=null;driveLocation.innerHTML="";if(v==="N/A"){driveFollow.classList.add("hidden")}else{driveFollow.classList.remove("hidden");let vals=(v==="Full"||v==="Short")?["Fairway","Left","Right"]:["Left","Right"];driveFollowTitle.textContent=(v==="Full"||v==="Short")?"Where did it finish?":(v==="Punch"?"Which side required recovery?":"Which side was lost / OB?");vals.forEach(x=>{let b=document.createElement("button");b.className="pill";b.textContent=x;b.onclick=()=>{document.querySelectorAll("#driveLocation .pill").forEach(q=>q.classList.remove("selected"));b.classList.add("selected");s.driveLoc=x;summary()};driveLocation.appendChild(b)})}summary()}
+function selectSecond(btn,v){clear("secondResult");btn.classList.add("selected");s.secondResult=v;s.secondModifier=null;clear("secondModifier");secondModWrap.classList.toggle("hidden",v==="Hit");flow();summary()}
+function selectApproach(btn,v){clear("approachResult");btn.classList.add("selected");s.approach=v;flow();summary()}
+function flow(){let ugir=s.par===5&&s.secondResult==="Hit",gir=!ugir&&s.approach==="Hit";ugirNote.classList.toggle("hidden",!ugir);girNote.classList.toggle("hidden",!gir);approachCard.classList.toggle("hidden",ugir);shortCard.classList.toggle("hidden",ugir||gir||!s.approach)}
+function derived(){if(s.par===5&&s.secondResult==="Hit")return"UGIR";if(s.approach==="Hit")return"GIR";if(s.putts==="0")return"Chip-in / Hole-out";return"—"}
+function summary(){sumPar.textContent=s.par?"Par "+s.par:"—";driveRow.classList.toggle("hidden",!s.par||s.par===3);sumDrive.textContent=s.drive?(s.drive+(s.driveLoc?" • "+s.driveLoc:"")):"—";secondRow.classList.toggle("hidden",s.par!==5);sumSecond.textContent=[s.secondDistance,s.secondResult,s.secondModifier].filter(Boolean).join(" • ")||"—";let ugir=s.par===5&&s.secondResult==="Hit";approachRow.classList.toggle("hidden",!s.par||ugir);sumApproach.textContent=[s.approachDistance,s.approach,s.contact].filter(Boolean).join(" • ")||"—";let showShort=!ugir&&s.approach&&s.approach!=="Hit";shortRow.classList.toggle("hidden",!showShort);sumShort.textContent=s.shortGame||"—";sumPutts.textContent=s.putts??"—";sumPenalty.textContent=s.penalty||"—";sumDerived.textContent=derived()}
+function validate(){if(!s.par)return"Choose the hole par.";if(s.par!==3){if(!s.drive)return"Choose a Drive result.";if(s.drive!=="N/A"&&!s.driveLoc)return"Choose the Drive follow-up."}if(s.par===5){if(!s.secondDistance)return"Choose the second-shot distance.";if(!s.secondResult)return"Choose the second-shot result.";if(s.secondResult==="Hit"){if(s.putts===null)return"Choose Putts.";if(!s.penalty)return"Choose Penalty.";return null}}if(!s.approachDistance)return"Choose the Approach distance.";if(!s.approach)return"Choose the Approach result.";if(s.approach!=="Hit"&&!s.shortGame)return"Choose Chip/Pitch.";if(s.putts===null)return"Choose Putts.";if(!s.penalty)return"Choose Penalty.";return null}
+function saveHole(){let e=validate();if(e){alert(e);return}entries.unshift({hole,par:s.par,derived:derived(),drive:s.par===3?null:(s.drive+(s.driveLoc?" • "+s.driveLoc:"")),second:s.par===5?[s.secondDistance,s.secondResult,s.secondModifier].filter(Boolean).join(" • "):null,approach:(s.par===5&&s.secondResult==="Hit")?null:[s.approachDistance,s.approach,s.contact].filter(Boolean).join(" • "),shortGame:(s.approach&&s.approach!=="Hit")?s.shortGame:null,putts:s.putts,penalty:s.penalty});hole=hole===18?1:hole+1;holeNum.textContent=hole;render();resetCurrent()}
+function resetCurrent(){s=blank();document.querySelectorAll(".option,.pill").forEach(b=>b.classList.remove("selected"));["driveCard","secondCard","approachCard","shortCard","puttsCard","penaltyCard","summaryBox","actions","driveFollow","secondModWrap","ugirNote","girNote"].forEach(id=>document.getElementById(id).classList.add("hidden"));driveLocation.innerHTML="";summary()}
+function render(){history.innerHTML='<div class="eyebrow" style="margin-top:18px">Recent Test Entries</div>'+entries.slice(0,5).map(e=>`<div class="entry"><strong>Hole ${e.hole} • Par ${e.par}${e.derived!=="—"?" • "+e.derived:""}</strong>${e.drive?`<div><span class="muted">Drive:</span> ${e.drive}</div>`:""}${e.second?`<div><span class="muted">2nd:</span> ${e.second}</div>`:""}${e.approach?`<div><span class="muted">Approach:</span> ${e.approach}</div>`:""}${e.shortGame?`<div><span class="muted">Chip/Pitch:</span> ${e.shortGame}</div>`:""}<div><span class="muted">Putts:</span> ${e.putts} • <span class="muted">Penalty:</span> ${e.penalty}</div></div>`).join("")}
+</script></body></html>
