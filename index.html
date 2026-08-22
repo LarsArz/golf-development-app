@@ -26,11 +26,28 @@
 .primary{width:100%;border:0;border-radius:16px;background:var(--red);color:#fff;padding:16px 18px;font-weight:900;font-size:16px}.primary.black{background:#111}
 .overlay{position:fixed;inset:0;z-index:100;background:rgba(10,10,10,.88);display:grid;place-items:center;padding:22px;backdrop-filter:blur(8px)}.reward{width:min(100%,430px);background:#fff;border-radius:30px;padding:30px 22px 22px;text-align:center}.duck{width:118px;height:118px;margin:0 auto 17px;background:#f0f0f0;border-radius:50%;display:grid;place-items:center;font-size:65px;border:7px solid var(--red)}.reward-title{color:var(--red);font-size:13px;font-weight:950;letter-spacing:1.2px;text-transform:uppercase}.reward-xp{font-size:38px;font-weight:950;margin:18px 0 4px}.reward-detail{color:var(--gray);margin-bottom:22px}
 .nav{position:fixed;z-index:50;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);background:rgba(255,255,255,.97);border-top:1px solid #e5e5e5;padding:9px 12px calc(env(safe-area-inset-bottom) + 8px);display:grid;grid-template-columns:repeat(4,1fr)}.nav button{border:0;background:transparent;color:#7a7a7a;padding:4px;font-size:10px;font-weight:850}.nav button.active{color:var(--red)}.nav-icon{display:block;font-size:21px;margin-bottom:2px}
-</style>
+.brand-mark{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  overflow:hidden;
+  padding:0;
+  background:#fff;
+  flex:0 0 58px;
+}
+
+.brand-mark img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}</style>
 </head>
 <body>
 <main class="app" id="mainApp">
-<header class="topbar"><div class="row"><div class="brand"><div class="brand-mark">🦆</div><div><div class="brand-name">The Swing Lab</div><div class="brand-tag">Hard Work Pays Off.</div></div></div><div class="avatar">M</div></div></header>
+<header class="topbar"><div class="row"><div class="brand"><div class="brand-mark">
+  <img src="Swing-lab-duck-logo.jpeg" alt="The Swing Lab duck logo">
+</div><div><div class="brand-name">The Swing Lab</div><div class="brand-tag">Hard Work Pays Off.</div></div></div><div class="avatar">M</div></div></header>
 
 <section class="page screen" id="homeScreen">
 <div class="hello"><div class="eyebrow">Saturday, August 15</div><h1>Today's Practice</h1><p class="subtle">Show up. Do the work. Keep building.</p></div>
