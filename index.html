@@ -41,7 +41,10 @@
   height:100%;
   display:block;
   object-fit:cover;
-}</style>
+}
+/* Coach's Schedule */
+.coach-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.coach-date{font-weight:800;font-size:13px;color:#555}.coach-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:14px 0}.coach-day{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:9px 1px;min-height:57px;text-align:center;color:#222;font-weight:800}.coach-day small{display:block;color:#888;font-size:10px;margin-bottom:5px}.coach-day.done{background:#e9f6ed;border-color:#83b596}.coach-day.today{outline:2px solid #d62828}.coach-day.active{background:#111;color:#fff}.coach-day.active small{color:#ddd}.coach-day.rest{background:#f0f0f0;color:#888}.coach-input,.coach-text{width:100%;border:1px solid #d3d3d3;border-radius:12px;padding:11px;font:inherit;margin:7px 0 12px;background:#fff}.coach-text{min-height:115px;resize:vertical}.coach-tasks{margin:12px 0}.coach-task{display:flex;align-items:flex-start;gap:12px;padding:12px 2px;border-bottom:1px solid #eee;font-weight:700;line-height:1.4}.coach-task input{width:22px;height:22px;accent-color:#d62828;flex-shrink:0}.coach-task.checked span{text-decoration:line-through;color:#888}.coach-btnrow{display:flex;gap:8px;flex-wrap:wrap}.coach-btnrow button{flex:1;min-width:120px}.coach-mini{font-size:12px;color:#777;line-height:1.5}.coach-celebrate{position:fixed;z-index:150;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}.coach-celebrate-inner{max-width:340px;width:100%;background:white;border-radius:25px;padding:30px 20px;text-align:center}.coach-duck{font-size:88px;animation:coachSwing 1.2s ease-in-out 2;transform-origin:60% 75%}@keyframes coachSwing{0%{transform:rotate(-15deg) scale(.9)}40%{transform:rotate(20deg) scale(1.1)}70%{transform:rotate(-12deg) scale(1.05)}100%{transform:rotate(0) scale(1)}}
+</style>
 </head>
 <body>
 <main class="app" id="mainApp">
@@ -77,6 +80,21 @@
 
 <section class="page screen hidden" id="practiceScreen">
 <div class="hello"><div class="eyebrow">Practice</div><h1>Drill Games</h1><p class="subtle">When the assignment is broad, choose a game that fits the skill you're working on.</p></div>
+
+<div class="card" id="coachSchedule">
+<div class="coach-head"><div><div class="eyebrow">Hard Work Pays Off</div><h2>🦆 Coach's Schedule</h2></div><span class="coach-date" id="coachRange"></span></div>
+<p class="coach-mini">Joe's two-week practice plan. Select a day, check off the work, and celebrate the effort.</p>
+<div class="coach-days" id="coachDays"></div>
+<div id="coachDayPanel"></div>
+<details style="margin-top:17px;border-top:1px solid #eee;padding-top:14px"><summary style="font-weight:900;cursor:pointer">⚙️ Edit or import Joe's plan</summary>
+<p class="coach-mini">Choose the first day of the 14-day block. Starting a new block keeps the previous block on this device.</p>
+<label class="coach-mini" for="coachStart">Block start date</label><input class="coach-input" type="date" id="coachStart">
+<div class="coach-btnrow"><button class="primary" onclick="coachNewBlock()">Start 14-day block</button><button class="secondary" onclick="coachEditDay()">Edit selected day</button></div>
+<p class="coach-mini" style="margin-top:15px">Paste Joe's entire plan: one line per day, with checklist items separated by a vertical bar ( | ). Blank lines are rest days. Example: Putting 20 min | Wedges 30 balls</p>
+<textarea class="coach-text" id="coachImport" placeholder="Putting 20 min | Wedges 30 balls&#10;Full swing 40 balls | Short game&#10;Rest day"></textarea>
+<button class="secondary" style="width:100%" onclick="coachImportPlan()">Import 14-day plan</button>
+</details>
+</div>
 <div class="grid2">
 <div class="category" onclick="openPage('puttingPage')"><div class="cat-icon">🥅</div><div class="cat-title">Putting</div><div class="cat-detail">Games & challenges</div></div>
 <div class="category"><div class="cat-icon">⛳</div><div class="cat-title">Chipping</div><div class="cat-detail">Games & challenges</div></div>
@@ -140,6 +158,7 @@
 
 <div class="overlay hidden" id="practiceReward"><div class="reward"><div class="reward-title">Hard Work Pays Off.</div><div class="duck">🦆🏆</div><h2>Practice Complete!</h2><p class="subtle">All 3 assignments finished</p><div class="reward-xp">+100 XP</div><div class="reward-detail">You finished the plan. That's how progress gets built.</div><button class="primary" onclick="finishPracticeReward()">Nice Work</button></div></div>
 
+<div class="coach-celebrate hidden" id="coachCelebration"><div class="coach-celebrate-inner"><div class="coach-duck">🦆⛳</div><h2>Practice Complete!</h2><p>Hard work pays off. Great job putting in the work!</p><button class="primary" style="width:100%" onclick="document.getElementById('coachCelebration').classList.add('hidden')">Keep Building! 🏆</button></div></div>
 <script>
 const defaults={xp:0,streak:1,games:0,days:0,lmh:false,landing:false,putting:false,practiceRewarded:false};
 let state=(()=>{try{return{...defaults,...JSON.parse(localStorage.getItem("swingLabV3")||"{}")}}catch(e){return{...defaults}}})();
@@ -164,6 +183,24 @@ const c=[state.lmh,state.landing,state.putting].filter(Boolean).length;progressT
 if(state.lmh)btnLMH.textContent="✓ Completed";if(state.landing)btnLand.textContent="✓ Completed";if(state.putting)btnPut.textContent="✓ Completed";
 }
 update();
+
+/* Coach schedule is kept separately from existing game/streak state. */
+const COACH_KEY='swingLabCoachV1';
+const coachISO=d=>{let x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+const coachDate=(start,i)=>{let d=new Date(start+'T12:00:00');d.setDate(d.getDate()+i);return d};
+const coachDefault=()=>({blocks:[],active:null,selected:0});
+let coach=(()=>{try{let v=JSON.parse(localStorage.getItem(COACH_KEY)||'null');return v&&Array.isArray(v.blocks)?v:coachDefault()}catch(e){return coachDefault()}})();
+function coachSave(){try{localStorage.setItem(COACH_KEY,JSON.stringify(coach))}catch(e){alert('Storage is full; your changes could not be saved.')}}
+function coachBlock(){return coach.blocks.find(b=>b.id===coach.active)}
+function coachInit(){if(!coachBlock()){let start=coachISO(new Date());let b={id:Date.now(),start,days:Array.from({length:14},()=>({tasks:[],done:[]}))};coach.blocks.push(b);coach.active=b.id;coachSave()}coachStart.value=coachBlock().start;coachRender()}
+function coachRender(){let b=coachBlock();if(!b)return;let end=coachDate(b.start,13);coachRange.textContent=new Date(b.start+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})+' – '+end.toLocaleDateString(undefined,{month:'short',day:'numeric'});let today=coachISO(new Date());coachDays.innerHTML=b.days.map((day,i)=>{let d=coachDate(b.start,i),iso=coachISO(d),complete=day.tasks.length>0&&day.tasks.every((_,j)=>day.done.includes(j));return '<button class="coach-day '+(i===coach.selected?'active ':'')+(complete?'done ':'')+(iso===today?'today ':'')+(!day.tasks.length?'rest':'')+'" onclick="coachSelect('+i+')"><small>'+d.toLocaleDateString(undefined,{weekday:'short'})+'</small>'+(d.getMonth()+1)+'/'+d.getDate()+'<div>'+(complete?'✓':day.tasks.length?day.done.length+'/'+day.tasks.length:'—')+'</div></button>'}).join('');let day=b.days[coach.selected],d=coachDate(b.start,coach.selected);let name=d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});coachDayPanel.innerHTML='<h3 style="margin:12px 0">'+name+'</h3>'+(day.tasks.length?'<div class="coach-tasks">'+day.tasks.map((task,j)=>'<label class="coach-task '+(day.done.includes(j)?'checked':'')+'"><input type="checkbox" '+(day.done.includes(j)?'checked':'')+' onchange="coachToggle('+j+',this.checked)"><span>'+coachEscape(task)+'</span></label>').join('')+'</div>':'<p class="coach-mini">No tasks assigned. Rest day or add a practice checklist.</p>')+'<button class="secondary" onclick="coachEditDay()">✎ Edit this day</button>'; }
+function coachEscape(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function coachSelect(i){coach.selected=i;coachSave();coachRender()}
+function coachToggle(j,checked){let d=coachBlock().days[coach.selected],was=d.tasks.length>0&&d.tasks.every((_,k)=>d.done.includes(k));d.done=checked?[...new Set([...d.done,j])]:d.done.filter(x=>x!==j);coachSave();coachRender();if(!was&&d.tasks.length&&d.tasks.every((_,k)=>d.done.includes(k)))document.getElementById('coachCelebration').classList.remove('hidden')}
+function coachEditDay(){let d=coachBlock().days[coach.selected];let input=prompt('Enter one task per line for this day. Leave empty for a rest day.',d.tasks.join('\n'));if(input===null)return;let tasks=input.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);d.done=d.done.filter(i=>i<tasks.length&&tasks[i]===d.tasks[i]);d.tasks=tasks;coachSave();coachRender()}
+function coachNewBlock(){let start=coachStart.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(start)){alert('Choose a valid start date.');return}if(!confirm('Start a new two-week block? Your existing block will remain saved on this device.'))return;let b={id:Date.now(),start,days:Array.from({length:14},()=>({tasks:[],done:[]}))};coach.blocks.push(b);coach.active=b.id;coach.selected=0;coachSave();coachRender()}
+function coachImportPlan(){let lines=coachImport.value.replace(/\r/g,'').split('\n');if(lines.length>14&&lines.slice(14).some(x=>x.trim())){alert('This block holds 14 days. Please use no more than 14 lines.');return}if(!confirm('Replace this block’s daily checklists with the pasted plan?'))return;let b=coachBlock();b.days=Array.from({length:14},(_,i)=>({tasks:(lines[i]||'').split('|').map(x=>x.trim()).filter(x=>x&&!/^rest( day)?$/i.test(x)),done:[]}));coachSave();coachImport.value='';coachRender();alert('Joe’s 14-day plan is ready!')}
+coachInit();
 </script>
 </body>
 </html>
