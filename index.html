@@ -12,7 +12,7 @@
 .topbar{background:radial-gradient(circle at 88% 15%,rgba(214,40,40,.24),transparent 33%),linear-gradient(145deg,#0c0c0c,#242424);color:#fff;padding:calc(env(safe-area-inset-top) + 22px) 22px 27px;border-radius:0 0 30px 30px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:var(--red);font-size:30px}.brand-name{font-size:23px;font-weight:900}.brand-tag{margin-top:3px;font-size:12px;color:#cecece;font-weight:800;letter-spacing:.5px}.avatar{width:46px;height:46px;border-radius:50%;background:#fff;color:var(--red);display:grid;place-items:center;font-weight:950;font-size:20px}
 .page{padding:22px 18px 28px}.hello{padding:22px 2px 16px}.hello h1{font-size:32px}.eyebrow{color:var(--red);font-size:12px;font-weight:950;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:7px}h1,h2,h3,p{margin-top:0}h1{margin-bottom:7px;font-size:31px;line-height:1.08;letter-spacing:-.9px}h2{margin-bottom:14px;font-size:21px}.subtle{color:var(--gray);line-height:1.5}.card{background:#fff;border-radius:28px;padding:20px;margin-bottom:18px;box-shadow:var(--shadow);border:1px solid #ededed}
-.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:18px}.summary-card{background:#fff;border:1px solid #ececec;border-radius:20px;padding:14px 12px;min-height:104px}.summary-icon{font-size:21px;margin-bottom:9px}.summary-number{font-size:26px;font-weight:950;line-height:1;margin-bottom:5px}.summary-label{font-size:10px;color:var(--gray);text-transform:uppercase;font-weight:900;letter-spacing:.65px}
+.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}.summary-card{background:#fff;border:1px solid #ececec;border-radius:20px;padding:14px 12px;min-height:104px}.summary-icon{font-size:21px;margin-bottom:9px}.summary-number{font-size:26px;font-weight:950;line-height:1;margin-bottom:5px}.summary-label{font-size:10px;color:var(--gray);text-transform:uppercase;font-weight:900;letter-spacing:.65px}
 .level{background:#111;color:#fff;border-radius:22px;padding:17px;margin-bottom:18px}.level-name{font-size:18px;font-weight:900}.level-xp{color:#c7c7c7;font-size:12px;font-weight:800}.bar{height:9px;background:#414141;border-radius:99px;overflow:hidden}.bar.light{background:#e9e9e9}.fill{height:100%;background:var(--red);border-radius:99px;transition:width .35s}
 .today{padding:0;overflow:hidden}.today-head{background:linear-gradient(145deg,#161616,#292929);color:#fff;padding:20px}.today-head .eyebrow{color:#ff6666}.today-head h2{font-size:25px;margin-bottom:5px}.today-meta{color:#c7c7c7;font-size:13px;font-weight:700}.today-progress{padding:18px 20px 8px}.progress-row{display:flex;justify-content:space-between;font-size:13px;font-weight:850;margin-bottom:8px}
 .assignment-list{padding:10px 14px 14px}.assignment{width:100%;background:#fafafa;border:1px solid #e8e8e8;border-radius:18px;padding:15px;margin-bottom:10px;display:flex;gap:13px;align-items:center;text-align:left;color:#111}.assignment.completed{background:#f5faf6;border-color:#d9eadf}.assignment-icon{width:47px;height:47px;flex:0 0 47px;border-radius:15px;display:grid;place-items:center;background:#fff;border:1px solid #e3e3e3;font-size:24px}.assignment-copy{flex:1}.assignment-title{font-size:16px;font-weight:900;margin-bottom:4px}.assignment-detail{font-size:12px;line-height:1.35;color:var(--gray);font-weight:650}.assignment-status{color:var(--red);font-weight:950;font-size:18px}
@@ -60,9 +60,9 @@
 <div class="summary">
 <div class="summary-card"><div class="summary-icon">🔥</div><div class="summary-number" id="homeStreak">1</div><div class="summary-label">Day Streak</div></div>
 <div class="summary-card"><div class="summary-icon">⚡</div><div class="summary-number" id="homeXp">0</div><div class="summary-label">Total XP</div></div>
-<div class="summary-card"><div class="summary-icon">🏆</div><div class="summary-number" id="homeLevel">1</div><div class="summary-label">Level</div></div>
+
 </div>
-<div class="level"><div class="row"><div class="level-name" id="levelTitle">Level 1</div><div class="level-xp" id="levelXp">0 / 100 XP</div></div><div class="bar"><div class="fill" id="xpBar"></div></div></div>
+
 
 <div class="card today">
 <div class="today-head"><div class="eyebrow" style="color:var(--red);font-weight:900">COACH’S PLAN • TUESDAY, NOVEMBER 17</div><h2>One Hour Lesson with Coach Joe</h2><div class="today-meta">60 minutes • Golf lesson</div></div>
@@ -123,7 +123,7 @@
 <section class="page screen hidden" id="moreScreen"><div class="hello"><div class="eyebrow">The Lab</div><h1>More</h1></div><div class="more-list">
 <div class="more" onclick="showScreen('notes')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')showScreen('notes')" style="cursor:pointer"><div class="more-icon">📝</div><div class="more-copy"><div class="more-title">Notes</div><div class="more-detail">Swing thoughts, practice notes and questions.</div></div><span class="chev">›</span></div>
 <div class="more" onclick="window.location.href='round-test.html'" style="cursor:pointer"><div class="more-icon">🏌️</div><div class="more-copy"><div class="more-title">In-Round Tracker</div><div class="more-detail">Track holes live and review archived rounds.</div></div><span class="chev">›</span></div>
-<div class="more"><div class="more-icon">🏆</div><div class="more-copy"><div class="more-title">Progress & Rewards</div><div class="more-detail">XP, streaks, levels, achievements and rewards.</div></div><div class="badge">Soon</div></div>
+<div class="more"><div class="more-icon">🏆</div><div class="more-copy"><div class="more-title">Progress & Rewards</div><div class="more-detail">XP, practice streaks and achievements.</div></div><div class="badge">Soon</div></div>
 <div class="more"><div class="more-icon">🎓</div><div class="more-copy"><div class="more-title">College Recruiting</div><div class="more-detail">College lists, tasks, milestones and checklists.</div></div><div class="badge">Future</div></div>
 </div><div class="card" style="margin-top:18px"><h2>Settings / Testing</h2><p class="subtle">Current XP: <strong id="settingsXp">0</strong></p><button class="secondary" onclick="resetXp()">Reset XP to zero</button><p class="coach-mini">Does not reset practice assignments or streaks.</p></div></section>
 
@@ -250,8 +250,7 @@ function checkPractice(){if(state.lmh&&state.landing&&state.putting&&!state.prac
 function finishPracticeReward(){document.getElementById("practiceReward").classList.add("hidden");showScreen("home")}
 function mark(card,detail,status,done,text){if(done){document.getElementById(card).classList.add("completed");document.getElementById(detail).textContent=text;document.getElementById(status).textContent="✓"}}
 function update(){
-const level=Math.floor(state.xp/100)+1,within=state.xp%100;
-homeStreak.textContent=state.streak;homeXp.textContent=state.xp;homeLevel.textContent=level;levelTitle.textContent="Level "+level;levelXp.textContent=within+" / 100 XP";xpBar.style.width=within+"%";
+homeStreak.textContent=state.streak;homeXp.textContent=state.xp;
 document.getElementById("settingsXp").textContent=state.xp;
 const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonCheck").checked=lessonDone;progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
 }
