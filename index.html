@@ -179,7 +179,6 @@ homeStreak.textContent=state.streak;homeXp.textContent=state.xp;homeLevel.textCo
 games.textContent=state.games;streak.textContent=state.streak;xp.textContent=state.xp;days.textContent=state.days;document.getElementById("settingsXp").textContent=state.xp;
 const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonCheck").checked=lessonDone;progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
 }
-update();
 
 function homeLessonToggle(done){let b=coachBlock(),i=b?b.days.findIndex((_,j)=>coachISO(coachDate(b.start,j))==="2026-11-17"):-1;if(i>=0){let day=b.days[i];if(!day.tasks.length)day.tasks=["One Hour Lesson with Coach Joe"];let j=day.tasks.findIndex(t=>t==="One Hour Lesson with Coach Joe");if(j<0){day.tasks.unshift("One Hour Lesson with Coach Joe");day.done=day.done.map(k=>k+1);j=0}coachSetDone(i,j,done)}else{localStorage.setItem("swingLabLesson20261117",String(done));update();if(done)coachPreview()}}
 /* Coach schedule is kept separately from existing game/streak state. */
