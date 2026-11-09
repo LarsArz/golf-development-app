@@ -25,7 +25,7 @@
 .subhead{background:linear-gradient(145deg,#111,#292929);color:#fff;padding:calc(env(safe-area-inset-top) + 17px) 18px 31px;border-radius:0 0 32px 32px}.back{width:43px;height:43px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:24px;margin-bottom:22px}.subhead .eyebrow{color:#ff6a6a}.subhead h1{font-size:34px}.subhead p{color:#c9c9c9}.content{padding:18px}.rule{margin-bottom:22px}.rule h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--red)}.rule p{color:#484848;line-height:1.58}.traj{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}.traj div{border-radius:17px;padding:14px 6px;text-align:center;background:#f4f4f4;border:1px solid #e4e4e4;font-weight:900}.goal{background:#111;color:#fff;border-radius:22px;padding:19px;margin-bottom:18px}.goal .eyebrow{color:#ff6a6a}.warning{background:#fff3f3;border-left:5px solid var(--red);border-radius:14px;padding:15px 16px;margin-bottom:24px;font-weight:700}.away{text-align:center;color:var(--gray);font-size:13px;font-weight:700;margin:14px 0 22px}
 .primary{width:100%;border:0;border-radius:16px;background:var(--red);color:#fff;padding:16px 18px;font-weight:900;font-size:16px}.primary.black{background:#111}
 .overlay{position:fixed;inset:0;z-index:100;background:rgba(10,10,10,.88);display:grid;place-items:center;padding:22px;backdrop-filter:blur(8px)}.reward{width:min(100%,430px);background:#fff;border-radius:30px;padding:30px 22px 22px;text-align:center}.duck{width:118px;height:118px;margin:0 auto 17px;background:#f0f0f0;border-radius:50%;display:grid;place-items:center;font-size:65px;border:7px solid var(--red)}.reward-title{color:var(--red);font-size:13px;font-weight:950;letter-spacing:1.2px;text-transform:uppercase}.reward-xp{font-size:38px;font-weight:950;margin:18px 0 4px}.reward-detail{color:var(--gray);margin-bottom:22px}
-.nav{position:fixed;z-index:50;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);background:rgba(255,255,255,.97);border-top:1px solid #e5e5e5;padding:9px 12px calc(env(safe-area-inset-bottom) + 8px);display:grid;grid-template-columns:repeat(4,1fr)}.nav button{border:0;background:transparent;color:#7a7a7a;padding:4px;font-size:10px;font-weight:850}.nav button.active{color:var(--red)}.nav-icon{display:block;font-size:21px;margin-bottom:2px}
+.nav{position:fixed;z-index:50;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);background:rgba(255,255,255,.97);border-top:1px solid #e5e5e5;padding:9px 12px calc(env(safe-area-inset-bottom) + 8px);display:grid;grid-template-columns:repeat(5,1fr)}.nav button{border:0;background:transparent;color:#7a7a7a;padding:4px;font-size:10px;font-weight:850}.nav button.active{color:var(--red)}.nav-icon{display:block;font-size:21px;margin-bottom:2px}
 .brand-mark{
   width:58px;
   height:58px;
@@ -108,6 +108,8 @@
 <div class="card"><h2>Recent Rounds</h2><div id="golfStatsRecent"></div><button class="primary black" onclick="window.location.href='round-test.html'">Open Round Tracker</button></div>
 <p class="coach-mini">Scoring average is shown as an 18-hole equivalent, including 9-hole rounds. Statistics use saved rounds on this device. Putts of 4+ and penalty counts of 2+ are recorded as minimum values.</p></section>
 
+<section class="page screen hidden" id="storeScreen"><div class="hello"><div class="eyebrow">Hard Work Pays Off</div><h1>🛍️ XP Store</h1><p class="subtle">Save your XP or treat yourself. You earned it.</p></div><div class="card"><div class="eyebrow">Available to Spend</div><h1 id="storeBalance">0 XP</h1><p class="subtle" id="storeLifetime">Lifetime earned: 0 XP</p></div><h2>Choose Your Reward</h2><div id="storeItems"></div><div class="card"><h2>🎁 My Rewards</h2><div id="storeClaims"></div></div></section>
+
 <section class="page screen hidden" id="moreScreen"><div class="hello"><div class="eyebrow">The Lab</div><h1>More</h1></div><div class="more-list">
 <div class="more"><div class="more-icon">📝</div><div class="more-copy"><div class="more-title">Notes</div><div class="more-detail">Swing thoughts, practice notes and questions.</div></div><div class="badge">Soon</div></div>
 <div class="more" onclick="window.location.href='round-test.html'" style="cursor:pointer"><div class="more-icon">🏌️</div><div class="more-copy"><div class="more-title">In-Round Tracker</div><div class="more-detail">Fast on-course input and quiz scoring.</div></div><div class="badge">Soon</div></div>
@@ -119,8 +121,10 @@
 <button class="active" id="navHome" onclick="showScreen('home')"><span class="nav-icon">⌂</span>Home</button>
 <button id="navPractice" onclick="showScreen('practice')"><span class="nav-icon">⛳</span>Practice</button>
 <button id="navStats" onclick="showScreen('stats')"><span class="nav-icon">▥</span>Stats</button>
+<button id="navStore" onclick="showScreen('store')"><span class="nav-icon">🛍️</span>Store</button>
 <button id="navMore" onclick="showScreen('more')"><span class="nav-icon">•••</span>More</button>
 </nav>
+<div class="overlay hidden" id="mysteryOverlay"><div class="reward"><div class="reward-title">Hard Work Pays Off!</div><div style="font-size:64px;margin:12px">🎁</div><h2 id="mysteryTitle">Surprise!</h2><p class="subtle" id="mysteryDetail"></p><button class="primary" onclick="document.getElementById('mysteryOverlay').classList.add('hidden');renderStore()">Awesome!</button></div></div>
 </main>
 
 <section class="subpage hidden" id="lmhPage">
@@ -162,7 +166,49 @@
 const defaults={xp:0,streak:1,games:0,days:0,lmh:false,landing:false,putting:false,practiceRewarded:false};
 let state=(()=>{try{return{...defaults,...JSON.parse(localStorage.getItem("swingLabV3")||"{}")}}catch(e){return{...defaults}}})();
 function save(){localStorage.setItem("swingLabV3",JSON.stringify(state))}
-function showScreen(name){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));document.getElementById(name+"Screen").classList.remove("hidden");document.getElementById("nav"+name[0].toUpperCase()+name.slice(1)).classList.add("active");window.scrollTo(0,0);update()}
+
+/* XP Store and mystery rewards. Odds and pool are deliberately not shown in the UI. */
+const STORE_CATALOG=[
+{id:'spinach',icon:'🥬',name:'Skip Dinner Spinach',xp:500},
+{id:'froyo',icon:'🍦',name:'$5 Froyo',xp:500},
+{id:'goodgood',icon:'⛳',name:'$5 Good Good Credit',xp:500},
+{id:'takeout',icon:'🍔',name:'Pick Takeout Any Night (Chick-fil-A, Santo Matador, Shake Shack)',xp:1000},
+{id:'gaming',icon:'🎮',name:'$10 Roblox/Fortnite Credit',xp:900},
+{id:'cash20',icon:'💵',name:'$20 Cash',xp:1700},
+{id:'breakfast',icon:'🥞',name:'Breakfast at Another Broken Egg',randomOnly:true},
+{id:'steak',icon:'🥩',name:'Steak Dinner',randomOnly:true},
+{id:'hat',icon:'🧢',name:'Golf Hat',randomOnly:true}
+];
+const STORE_KEY='swingLabStoreV1';
+function loadStore(){try{let d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {spent:Number(d.spent)||0,claims:Array.isArray(d.claims)?d.claims:[],remaining:Array.isArray(d.remaining)?d.remaining:STORE_CATALOG.map(x=>x.id),draws:Array.isArray(d.draws)?d.draws:[]}}catch(e){return {spent:0,claims:[],remaining:STORE_CATALOG.map(x=>x.id),draws:[]}}}
+let rewardStore=loadStore();
+function saveStore(){localStorage.setItem(STORE_KEY,JSON.stringify(rewardStore))}
+function availableXP(){return Math.max(0,state.xp-rewardStore.spent)}
+function renderStore(){
+let balance=document.getElementById('storeBalance');if(!balance)return;
+balance.textContent=availableXP().toLocaleString()+' XP';
+document.getElementById('storeLifetime').textContent='Lifetime earned: '+state.xp.toLocaleString()+' XP';
+document.getElementById('storeItems').innerHTML=STORE_CATALOG.filter(x=>!x.randomOnly).map(x=>'<div class="card" style="display:flex;align-items:center;gap:12px;padding:15px"><span style="font-size:30px">'+x.icon+'</span><div style="flex:1"><strong>'+x.name+'</strong><div class="subtle" style="font-size:12px">'+x.xp.toLocaleString()+' XP</div></div><button class="primary" style="width:auto;padding:11px;font-size:12px" '+(availableXP()<x.xp?'disabled style="opacity:.5"':'')+' onclick="redeemXP(\''+x.id+'\')">Redeem</button></div>').join('');
+document.getElementById('storeClaims').innerHTML=rewardStore.claims.length?rewardStore.claims.slice().reverse().map(c=>'<div class="upcoming"><div style="flex:1"><strong>'+c.icon+' '+c.name+'</strong><div class="up-detail">'+(c.kind==='mystery'?'Surprise prize':'XP redemption')+' • '+(c.fulfilled?'Fulfilled':'Awaiting fulfillment')+'</div></div>'+(c.fulfilled?'<span>✓</span>':'<button class="primary black" style="width:auto;padding:10px;font-size:12px" onclick="fulfillReward('+c.id+')">Mark fulfilled</button>')+'</div>').join(''):'<p class="subtle">Your redeemed and surprise prizes will appear here.</p>';
+}
+function redeemXP(id){const p=STORE_CATALOG.find(x=>x.id===id&&!x.randomOnly);if(!p||availableXP()<p.xp)return;if(!confirm('Redeem '+p.xp+' XP for '+p.name+'? Ask a parent before confirming.'))return;rewardStore.spent+=p.xp;rewardStore.claims.push({id:Date.now(),name:p.name,icon:p.icon,kind:'store',fulfilled:false,date:new Date().toISOString()});saveStore();renderStore()}
+function fulfillReward(id){if(!confirm('Has a parent provided this reward?'))return;let c=rewardStore.claims.find(x=>x.id===id);if(c){c.fulfilled=true;saveStore();renderStore()}}
+function surpriseDraw(key){
+if(rewardStore.draws.includes(key))return;
+rewardStore.draws.push(key);
+const roll=Math.random();
+if(roll<.055){state.xp+=100;save();showMystery('BONUS +100 XP!','You earned an extra 100 XP for your hard work!')}
+else if(roll<.10){
+if(!rewardStore.remaining.length)rewardStore.remaining=STORE_CATALOG.map(x=>x.id);
+const idx=Math.floor(Math.random()*rewardStore.remaining.length),id=rewardStore.remaining.splice(idx,1)[0],p=STORE_CATALOG.find(x=>x.id===id);
+rewardStore.claims.push({id:Date.now(),name:p.name,icon:p.icon,kind:'mystery',fulfilled:false,date:new Date().toISOString()});
+showMystery('SURPRISE PRIZE!',p.icon+' '+p.name+' — Check My Rewards in the XP Store!');
+}
+saveStore();
+}
+function showMystery(title,detail){document.getElementById('mysteryTitle').textContent=title;document.getElementById('mysteryDetail').textContent=detail;document.getElementById('mysteryOverlay').classList.remove('hidden')}
+
+function showScreen(name){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));document.getElementById(name+"Screen").classList.remove("hidden");document.getElementById("nav"+name[0].toUpperCase()+name.slice(1)).classList.add("active");window.scrollTo(0,0);update();if(name==='store')renderStore();if(name==='stats')renderGolfStats()}
 function openPage(id){document.getElementById("mainApp").classList.add("hidden");document.querySelectorAll(".subpage").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");window.scrollTo(0,0)}
 function closePage(id){document.getElementById(id).classList.add("hidden");document.getElementById("mainApp").classList.remove("hidden");showScreen("home")}
 function backToPutting(){document.getElementById("samplePuttingPage").classList.add("hidden");document.getElementById("puttingPage").classList.remove("hidden")}
@@ -170,7 +216,7 @@ function completeLMH(){if(!state.lmh){state.lmh=true;state.games++;state.xp+=25;
 function finishGameReward(){document.getElementById("gameReward").classList.add("hidden");document.getElementById("lmhPage").classList.add("hidden");document.getElementById("mainApp").classList.remove("hidden");showScreen("home");checkPractice()}
 function completeLanding(){state.landing=true;save();document.getElementById("landingPage").classList.add("hidden");document.getElementById("mainApp").classList.remove("hidden");showScreen("home");checkPractice()}
 function completePutting(){state.putting=true;save();document.querySelectorAll(".subpage").forEach(x=>x.classList.add("hidden"));document.getElementById("mainApp").classList.remove("hidden");showScreen("home");checkPractice()}
-function checkPractice(){if(state.lmh&&state.landing&&state.putting&&!state.practiceRewarded){state.practiceRewarded=true;state.xp+=100;state.days++;save();update();setTimeout(()=>document.getElementById("practiceReward").classList.remove("hidden"),250)}}
+function checkPractice(){if(state.lmh&&state.landing&&state.putting&&!state.practiceRewarded){state.practiceRewarded=true;state.xp+=100;state.days++;save();surpriseDraw("swingLabLegacyPractice");update();setTimeout(()=>document.getElementById("practiceReward").classList.remove("hidden"),250)}}
 function finishPracticeReward(){document.getElementById("practiceReward").classList.add("hidden");showScreen("home")}
 function mark(card,detail,status,done,text){if(done){document.getElementById(card).classList.add("completed");document.getElementById(detail).textContent=text;document.getElementById(status).textContent="✓"}}
 function update(){
@@ -195,7 +241,7 @@ function coachEscape(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 function coachSelect(i){coach.selected=i;coachSave();coachRender()}
 function coachPreview(){document.getElementById("coachCelebration").classList.remove("hidden")}
 function coachToggle(j,checked){coachSetDone(coach.selected,j,checked)}
-function coachSetDone(i,j,checked){let b=coachBlock(),d=b.days[i];let was=d.tasks.length>0&&d.tasks.every((_,k)=>d.done.includes(k));d.done=checked?[...new Set([...d.done,j])]:d.done.filter(x=>x!==j);let complete=d.tasks.length>0&&d.tasks.every((_,k)=>d.done.includes(k));let key="swingLabReward_"+coachISO(coachDate(b.start,i));if(complete&&!was){if(!localStorage.getItem(key)){state.xp+=100;state.days++;localStorage.setItem(key,"1");save()}document.getElementById("coachCelebration").classList.remove("hidden")}else if(checked&&!complete){document.getElementById("taskCelebration").classList.remove("hidden")}coachSave();coachRender();update()}
+function coachSetDone(i,j,checked){let b=coachBlock(),d=b.days[i];let was=d.tasks.length>0&&d.tasks.every((_,k)=>d.done.includes(k));d.done=checked?[...new Set([...d.done,j])]:d.done.filter(x=>x!==j);let complete=d.tasks.length>0&&d.tasks.every((_,k)=>d.done.includes(k));let key="swingLabReward_"+coachISO(coachDate(b.start,i));if(complete&&!was){if(!localStorage.getItem(key)){state.xp+=100;state.days++;localStorage.setItem(key,"1");save();surpriseDraw(key)}document.getElementById("coachCelebration").classList.remove("hidden")}else if(checked&&!complete){document.getElementById("taskCelebration").classList.remove("hidden")}coachSave();coachRender();update()}
 function coachEditDay(){coachEditorTitle.textContent="Edit "+coachDate(coachBlock().start,coach.selected).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});coachTaskInput.value="";coachRenderEditor();coachEditor.classList.remove("hidden")}
 function coachRenderEditor(){let d=coachBlock().days[coach.selected];coachEditorTasks.innerHTML=d.tasks.map((task,i)=>'<div class="coach-edit-row"><input class="coach-input" aria-label="Assignment '+(i+1)+'" value="'+coachEscape(task)+'" onchange="coachRenameTask('+i+',this.value)"><button class="secondary" aria-label="Remove assignment '+(i+1)+'" onclick="coachRemoveTask('+i+')">Remove</button></div>').join("")}
 function coachAddTask(){let v=coachTaskInput.value.trim();if(!v)return;coachBlock().days[coach.selected].tasks.push(v);coachTaskInput.value="";coachSave();coachRenderEditor();coachRender();coachTaskInput.focus()}
