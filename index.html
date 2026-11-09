@@ -222,7 +222,7 @@ function mark(card,detail,status,done,text){if(done){document.getElementById(car
 function update(){
 const level=Math.floor(state.xp/100)+1,within=state.xp%100;
 homeStreak.textContent=state.streak;homeXp.textContent=state.xp;homeLevel.textContent=level;levelTitle.textContent="Level "+level;levelXp.textContent=within+" / 100 XP";xpBar.style.width=within+"%";
-games.textContent=state.games;streak.textContent=state.streak;xp.textContent=state.xp;days.textContent=state.days;document.getElementById("settingsXp").textContent=state.xp;
+document.getElementById("settingsXp").textContent=state.xp;
 const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonCheck").checked=lessonDone;progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
 }
 
