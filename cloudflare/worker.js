@@ -1,4 +1,5 @@
 // The Swing Lab API — shared schedule and daily inspiration.
+// First Git-connected deployment; public write operations remain disabled.
 // D1 binding DB is configured in Cloudflare. This Worker intentionally does not
 // enable public writes: parent authentication must be configured first.
 const allowedOrigin = 'https://larsarz.github.io';
