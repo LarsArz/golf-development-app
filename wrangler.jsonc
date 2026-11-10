@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "swing-lab-api",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-09",
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swing-lab",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+    }
+  ]
+}
