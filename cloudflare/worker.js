@@ -113,7 +113,7 @@ async function route(request,env,url){
   if(path==='/schedule/rest'&&method==='PUT'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
     const data=await bodyJSON(request);
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||typeof data?.rest!=='boolean')return reply({error:'Invalid rest day'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||'')||typeof data?.rest!=='boolean')return reply({error:'Invalid rest day'},400);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
     if(data.rest){
       const row=await env.DB.prepare('SELECT assignments_json FROM practice_days WHERE date=?').bind(data.date).first();
