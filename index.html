@@ -313,7 +313,7 @@ async function runRealMysteryTest(){
   let outcome=m.kind==='bonus'?'BONUS +100 XP':m.kind==='prize'?'PRIZE: '+(m.prize?.name||m.prize_id):'NO EXTRA REWARD';
   let cleaned=false;
   try{const c=await sharedRequest('/rewards/mysteries/test','DELETE',{id});cleaned=c.deleted===1}catch(e){}
-  alert('REAL CLOUDFLARE DRAWING TEST\\nOutcome: '+outcome+'\\nDuplicate protection: '+(consistent?'PASS':'FAILED')+'\\nTest record cleanup: '+(cleaned?'PASS':'FAILED — please report')+'\\nReal XP and rewards: unchanged.');
+  alert('REAL CLOUDFLARE DRAWING TEST\nOutcome: '+outcome+'\nDuplicate protection: '+(consistent?'PASS':'FAILED')+'\nTest record cleanup: '+(cleaned?'PASS':'FAILED — please report')+'\nReal XP and rewards: unchanged.');
  }catch(e){alert('Cloudflare drawing test failed: '+e.message+'. Please report this error.')}
 }
 function previewMysteryTest(kind){
