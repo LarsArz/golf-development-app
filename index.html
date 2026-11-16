@@ -294,9 +294,28 @@ function coachSave(){try{localStorage.setItem(COACH_KEY,JSON.stringify(coach))}c
 const SHARED_API='https://swing-lab-api.larry-artzner.workers.dev';
 let sharedRole=null,sharedReady=false,sharedRestDays=new Set();
 function sharedToken(){return localStorage.getItem('swingLabParentSessionV1')||localStorage.getItem('swingLabGolferSessionV1')}
-function sharedStatus(message){let n=document.getElementById('sharedScheduleStatus');if(!n){n=document.createElement('p');n.id='sharedScheduleStatus';n.style.cssText='font-size:13px;padding:10px;border-radius:9px;background:#eee;color:#222;margin:10px 0';coachRange.parentElement.appendChild(n)}n.textContent=message;if(sharedRole==='parent'&&!document.getElementById('auditXpButton')){let btn=document.createElement('button');btn.id='auditXpButton';btn.className='secondary';btn.textContent='Check Test XP';btn.style.marginTop='8px';btn.onclick=auditTestXP;n.insertAdjacentElement('afterend',btn)}}
+function sharedStatus(message){let n=document.getElementById('sharedScheduleStatus');if(!n){n=document.createElement('p');n.id='sharedScheduleStatus';n.style.cssText='font-size:13px;padding:10px;border-radius:9px;background:#eee;color:#222;margin:10px 0';coachRange.parentElement.appendChild(n)}n.textContent=message;if(sharedRole==='parent'&&!document.getElementById('auditXpButton')){let btn=document.createElement('button');btn.id='auditXpButton';btn.className='secondary';btn.textContent='Check Test XP';btn.style.marginTop='8px';btn.onclick=auditTestXP;n.insertAdjacentElement('afterend',btn)}
+if(sharedRole==='parent'&&!document.getElementById('mysteryTestPanel')){
+ let panel=document.createElement('div');panel.id='mysteryTestPanel';panel.style.cssText='margin:12px 0;padding:14px;border:1px solid #aaa;border-radius:12px;background:#fff';
+ panel.innerHTML='<strong>🎁 Mystery Reward Tests</strong><p style="font-size:12px;margin:6px 0">Previews only — no XP awarded, prizes claimed, or database changes.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary" onclick="previewMysteryTest(\'bonus\')">Preview Bonus XP</button><button class="secondary" onclick="previewMysteryTest(\'prize\')">Preview Prize</button><button class="secondary" onclick="previewMysteryTest(\'none\')">Preview No Prize</button></div><button class="secondary" style="margin-top:8px" onclick="auditMysteryRecords()">Check Cloudflare Records</button>';
+ n.insertAdjacentElement('afterend',panel);
+}}
 async function sharedRequest(path,method='GET',data){let token=sharedToken();if(!token)throw Error('Device not paired');let r=await fetch(SHARED_API+path,{method,headers:{authorization:'Bearer '+token,...(data?{'content-type':'application/json'}:{})},...(data?{body:JSON.stringify(data)}:{})});let result=await r.json();if(!r.ok)throw Error(result.error||'Sync failed');return result}
 async function sharedLoad(){if(!sharedToken()){sharedStatus('Saved on this device only. Pair this phone to enable sharing.');return}try{let me=await sharedRequest('/auth/me');sharedRole=me.role;let b=coachBlock();if(!b)return;let remote=await sharedRequest('/schedule?start='+b.start+'&end='+coachISO(coachDate(b.start,13)));sharedRestDays=new Set(remote.restDays||[]);for(let row of remote.days){let i=Math.round((new Date(row.date+'T12:00:00')-new Date(b.start+'T12:00:00'))/86400000);if(i<0||i>=14)continue;b.days[i]={tasks:row.tasks,done:remote.completed.filter(x=>x.date===row.date).map(x=>x.task_index)}}coachSave();coachRender();update();sharedReady=true;await sharedSyncRewards();await sharedLoadStore();await sharedLoadMysteries();sharedStatus('✓ Shared schedule connected ('+(sharedRole==='parent'?'Parent':'Mackenzie')+'). XP Store: '+(sharedStoreVersion===null?'not connected':'connected')+'.')}catch(e){sharedReady=false;sharedStatus('Shared schedule unavailable: '+e.message+'. Local data preserved.')}}
+function previewMysteryTest(kind){
+ if(sharedRole!=='parent')return;
+ if(kind==='bonus')showMystery('TEST PREVIEW — BONUS +100 XP!','Example only. No XP has been added.');
+ else if(kind==='prize')showMystery('TEST PREVIEW — SURPRISE PRIZE!','🎁 Example prize. No prize has been awarded.');
+ else showMystery('TEST PREVIEW — NO BONUS','Regular 100 XP only. This preview does not change XP.');
+}
+async function auditMysteryRecords(){
+ if(!sharedReady||sharedRole!=='parent'){alert('Parent connection required.');return}
+ try{
+  let [m,p]=await Promise.all([sharedRequest('/rewards/mysteries'),sharedRequest('/rewards/progress')]);
+  let draws=m.mysteries||[],prizes=draws.filter(x=>x.kind==='prize').length,bonuses=draws.filter(x=>x.kind==='bonus').length;
+  alert('Cloudflare mystery audit: '+draws.length+' total drawings; '+bonuses+' bonus XP drawings; '+prizes+' prize drawings. Total bonus XP: '+(p.bonusXP||0)+'. No records changed.');
+ }catch(e){alert('Cloudflare mystery audit unavailable: '+e.message)}
+}
 async function auditTestXP(){
   if(!sharedReady||sharedRole!=='parent'){alert('Connect as parent first.');return}
   try{
