@@ -292,7 +292,22 @@ async function auditTestXP(){
 }
 async function sharedSaveDay(i){if(!sharedReady||sharedRole!=='parent')return;let b=coachBlock(),date=coachISO(coachDate(b.start,i));try{await sharedRequest('/schedule/day','PUT',{date,tasks:[...b.days[i].tasks]});sharedStatus('✓ Assignments saved to shared schedule.')}catch(e){sharedStatus('Could not share assignments: '+e.message+'. Saved on this device only.')}}
 function sharedPracticeStreak(awards,restDays){let dates=new Set(awards.map(a=>a.date)),rests=new Set(restDays||[]),today=coachISO(new Date()),yesterday=coachISO(coachDate(today,-1)),end=dates.has(today)||rests.has(today)?today:yesterday,n=0,steps=0;while(steps++<3660&&(dates.has(end)||rests.has(end))){if(dates.has(end))n++;end=coachISO(coachDate(end,-1))}return n}
-async function sharedSyncRewards(awards){let restDays=[...sharedRestDays];if(!awards){let r=await sharedRequest('/rewards/progress');awards=r.awards;restDays=r.restDays||restDays;sharedRestDays=new Set(restDays)}let added=0;for(let a of awards){let key='swingLabReward_'+a.date;if(!localStorage.getItem(key)){state.xp+=a.xp;state.days++;localStorage.setItem(key,'1');added++}}state.streak=sharedPracticeStreak(awards,restDays);save();update();renderStore();return added}
+async function sharedSyncRewards(awards){
+  let restDays=[...sharedRestDays];
+  if(!awards){
+    let r=await sharedRequest('/rewards/progress');
+    awards=r.awards;
+    restDays=r.restDays||restDays;
+    sharedRestDays=new Set(restDays);
+  }
+  // Cloudflare is authoritative: local completion markers cannot mint or retain XP.
+  const previous=state.xp;
+  state.xp=awards.reduce((total,a)=>total+(Number(a.xp)||0),0);
+  state.days=awards.length;
+  state.streak=sharedPracticeStreak(awards,restDays);
+  save();update();renderStore();
+  return Math.max(0,state.xp-previous);
+}
 async function sharedSaveCompletion(i,j,checked){if(!sharedReady)return;let b=coachBlock(),date=coachISO(coachDate(b.start,i));try{let result=await sharedRequest('/schedule/completion','PUT',{date,index:j,completed:checked});let added=await sharedSyncRewards(result.awards);if(result.awarded&&added){/* Shared mystery rewards will be enabled after server-side drawing is added. */}sharedStatus('✓ Checkmark saved to shared schedule.'+(added?' +100 XP earned!':''))}catch(e){sharedStatus('Could not share checkmark: '+e.message+'. Saved on this device only.')}}
 
 function coachBlock(){return coach.blocks.find(b=>b.id===coach.active)}
