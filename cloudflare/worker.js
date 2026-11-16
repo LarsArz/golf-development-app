@@ -139,6 +139,24 @@ async function route(request,env,url){
     if(row.version!==data.version+1)return reply({error:'Store changed on another device; refresh before trying again',store:JSON.parse(row.data),version:row.version},409);
     return reply({ok:true,version:row.version});
   }
+  if(path==='/rewards/test-audit'&&method==='GET'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+    const date='2026-11-17';
+    const award=await env.DB.prepare('SELECT date,xp,awarded_at FROM practice_rewards WHERE date=?').bind(date).first();
+    const completion=await env.DB.prepare('SELECT task_index FROM practice_completion WHERE date=?').bind(date).all();
+    return reply({date,award:award||null,checkedTasks:(completion.results||[]).map(x=>x.task_index)});
+  }
+  if(path==='/rewards/test-clear'&&method==='POST'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    const data=await bodyJSON(request);
+    if(data?.date!=='2026-11-17'||data?.confirm!=='CLEAR_TEST_AWARD')return reply({error:'Explicit test award confirmation required'},400);
+    const completion=await env.DB.prepare('SELECT COUNT(*) AS n FROM practice_completion WHERE date=?').bind(data.date).first();
+    if(completion.n!==0)return reply({error:'Cannot clear award while lesson is checked'},409);
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+    const result=await env.DB.prepare('DELETE FROM practice_rewards WHERE date=?').bind(data.date).run();
+    return reply({ok:true,deleted:result.meta.changes});
+  }
   if(path==='/rewards/progress'&&method==='GET'){
     if(!user)return reply({error:'Unauthorized'},401);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
