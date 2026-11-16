@@ -93,7 +93,7 @@ async function route(request,env,url){
   if(path==='/schedule'&&method==='GET'){
     if(!user)return reply({error:'Unauthorized'},401);
     const start=url.searchParams.get('start'),end=url.searchParams.get('end');
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start||'')||!/^\\d{4}-\\d{2}-\\d{2}$/.test(end||'')||end<start)return reply({error:'Valid start and end dates required'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(start||'')||!/^\d{4}-\d{2}-\d{2}$/.test(end||'')||end<start)return reply({error:'Valid start and end dates required'},400);
     const rows=await env.DB.prepare('SELECT date,assignments_json FROM practice_days WHERE date BETWEEN ? AND ? ORDER BY date').bind(start,end).all();
     const done=await env.DB.prepare('SELECT date,task_index FROM practice_completion WHERE date BETWEEN ? AND ? ORDER BY date,task_index').bind(start,end).all();
     return reply({days:(rows.results||[]).map(r=>({date:r.date,tasks:JSON.parse(r.assignments_json)})),completed:done.results||[]});
@@ -101,7 +101,7 @@ async function route(request,env,url){
   if(path==='/schedule/day'&&method==='PUT'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
     const data=await bodyJSON(request);
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500))return reply({error:'Invalid practice day'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500))return reply({error:'Invalid practice day'},400);
     const tasks=data.tasks.map(t=>t.trim());
     await env.DB.prepare('INSERT INTO practice_days(date,assignments_json,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(date) DO UPDATE SET assignments_json=excluded.assignments_json,updated_at=CURRENT_TIMESTAMP').bind(data.date,JSON.stringify(tasks)).run();
     // Discard stale completion indices if the parent edits assignments.
@@ -111,7 +111,7 @@ async function route(request,env,url){
   if(path==='/schedule/completion'&&method==='PUT'){
     if(!user)return reply({error:'Unauthorized'},401);
     const data=await bodyJSON(request);
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||!Number.isInteger(data?.index)||data.index<0||typeof data?.completed!=='boolean')return reply({error:'Invalid completion'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||'')||!Number.isInteger(data?.index)||data.index<0||typeof data?.completed!=='boolean')return reply({error:'Invalid completion'},400);
     const row=await env.DB.prepare('SELECT assignments_json FROM practice_days WHERE date=?').bind(data.date).first();
     if(!row)return reply({error:'No scheduled practice for date'},404);
     const tasks=JSON.parse(row.assignments_json);if(data.index>=tasks.length)return reply({error:'Assignment not found'},404);
