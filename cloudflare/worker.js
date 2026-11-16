@@ -108,6 +108,23 @@ async function route(request,env,url){
     await env.DB.prepare('DELETE FROM practice_completion WHERE date=?').bind(data.date).run();
     return reply({ok:true});
   }
+  if(path==='/store'&&method==='GET'){
+    if(!user)return reply({error:'Unauthorized'},401);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS shared_store (id INTEGER PRIMARY KEY CHECK(id=1), data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 0)").run();
+    const row=await env.DB.prepare('SELECT data,version FROM shared_store WHERE id=1').first();
+    return reply({store:row?JSON.parse(row.data):null,version:row?.version??0});
+  }
+  if(path==='/store'&&method==='PUT'){
+    if(!user)return reply({error:'Unauthorized'},401);
+    const data=await bodyJSON(request),store=data?.store;
+    if(!Number.isInteger(data?.version)||data.version<0||!store||typeof store!=='object'||!Number.isFinite(store.spent)||store.spent<0||!Array.isArray(store.claims)||!Array.isArray(store.draws)||!Array.isArray(store.remaining)||JSON.stringify(store).length>40000)return reply({error:'Invalid store data'},400);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS shared_store (id INTEGER PRIMARY KEY CHECK(id=1), data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 0)").run();
+    if(data.version===0)await env.DB.prepare('INSERT INTO shared_store(id,data,version) VALUES(1,?,1) ON CONFLICT(id) DO NOTHING').bind(JSON.stringify(store)).run();
+    else await env.DB.prepare('UPDATE shared_store SET data=?,version=version+1 WHERE id=1 AND version=?').bind(JSON.stringify(store),data.version).run();
+    const row=await env.DB.prepare('SELECT data,version FROM shared_store WHERE id=1').first();
+    if(row.version!==data.version+1)return reply({error:'Store changed on another device; refresh before trying again',store:JSON.parse(row.data),version:row.version},409);
+    return reply({ok:true,version:row.version});
+  }
   if(path==='/rewards/progress'&&method==='GET'){
     if(!user)return reply({error:'Unauthorized'},401);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
