@@ -203,7 +203,7 @@ async function route(request,env,url){
   if(path==='/rewards/mysteries/fulfill'&&method==='POST'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
     const data=await bodyJSON(request);
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||''))return reply({error:'Invalid date'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||''))return reply({error:'Invalid date'},400);
     await ensureMysteries(env);
     await env.DB.prepare("UPDATE practice_mysteries SET fulfilled=1 WHERE date=? AND kind='prize'").bind(data.date).run();
     return reply({ok:true});
