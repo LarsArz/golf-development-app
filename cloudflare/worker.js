@@ -108,6 +108,12 @@ async function route(request,env,url){
     await env.DB.prepare('DELETE FROM practice_completion WHERE date=?').bind(data.date).run();
     return reply({ok:true});
   }
+  if(path==='/rewards/progress'&&method==='GET'){
+    if(!user)return reply({error:'Unauthorized'},401);
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+    const rows=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
+    return reply({awards:rows.results||[],totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)});
+  }
   if(path==='/schedule/completion'&&method==='PUT'){
     if(!user)return reply({error:'Unauthorized'},401);
     const data=await bodyJSON(request);
@@ -117,7 +123,15 @@ async function route(request,env,url){
     const tasks=JSON.parse(row.assignments_json);if(data.index>=tasks.length)return reply({error:'Assignment not found'},404);
     if(data.completed)await env.DB.prepare('INSERT INTO practice_completion(date,task_index) VALUES(?,?) ON CONFLICT(date,task_index) DO NOTHING').bind(data.date,data.index).run();
     else await env.DB.prepare('DELETE FROM practice_completion WHERE date=? AND task_index=?').bind(data.date,data.index).run();
-    return reply({ok:true});
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+    const completed=await env.DB.prepare('SELECT COUNT(*) AS count FROM practice_completion WHERE date=?').bind(data.date).first();
+    let awarded=false;
+    if(tasks.length>0&&completed.count===tasks.length){
+      const reward=await env.DB.prepare('INSERT INTO practice_rewards(date,xp) VALUES(?,100) ON CONFLICT(date) DO NOTHING').bind(data.date).run();
+      awarded=reward.meta.changes===1;
+    }
+    const awards=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
+    return reply({ok:true,awarded,awards:awards.results||[]});
   }
   return reply({error:'Not found'},404);
 }
