@@ -70,7 +70,7 @@
 <div class="card today">
 <div class="today-head"><div class="eyebrow" style="color:var(--red);font-weight:900">COACH’S PLAN • TUESDAY, NOVEMBER 17</div><h2>One Hour Lesson with Coach Joe</h2><div class="today-meta">60 minutes • Golf lesson</div></div>
 <div class="today-progress"><div class="progress-row"><span>Today's progress</span><span id="progressText">0 of 1 complete</span></div><div class="bar light"><div class="fill" id="practiceBar"></div></div></div>
-<div class="assignment-list"><label class="assignment" style="cursor:pointer"><div class="assignment-icon">🏌️‍♀️</div><div class="assignment-copy"><div class="assignment-title">One Hour Lesson with Coach Joe</div><div class="assignment-detail">60 minutes • Tuesday, November 17</div></div><input type="checkbox" id="homeLessonCheck" style="width:24px;height:24px;accent-color:var(--red)" onchange="homeLessonToggle(this.checked)"></label></div>
+<div class="assignment-list"><div class="assignment" role="button" tabindex="0" onclick="openTodayPractice()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTodayPractice()}" style="cursor:pointer"><div class="assignment-icon">🏌️‍♀️</div><div class="assignment-copy"><div class="assignment-title">One Hour Lesson with Coach Joe</div><div class="assignment-detail">60 minutes • Tuesday, November 17</div></div><span id="homeLessonStatus" style="font-size:15px;font-weight:800;color:var(--red);white-space:nowrap">Open →</span></div></div>
 </div>
 <div class="card"><div class="row"><h2>Coming Up</h2><strong style="color:var(--red)">Next on the calendar</strong></div>
 <div class="upcoming"><div class="date"><div><strong>18</strong><span>WED</span></div></div><div><div class="up-title">Coach's Plan</div><div class="up-detail">Wednesday, November 18</div></div></div>
@@ -260,10 +260,16 @@ function mark(card,detail,status,done,text){if(done){document.getElementById(car
 function update(){
 homeStreak.textContent=state.streak;homeXp.textContent=state.xp;
 document.getElementById("settingsXp").textContent=state.xp;
-const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonCheck").checked=lessonDone;progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
+const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonStatus").textContent=lessonDone?"✓ Done":"Open →";progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
 }
 
-function homeLessonToggle(done){let b=coachBlock(),i=b?b.days.findIndex((_,j)=>coachISO(coachDate(b.start,j))==="2026-11-17"):-1;if(i>=0){let day=b.days[i];if(!day.tasks.length)day.tasks=["One Hour Lesson with Coach Joe"];let j=day.tasks.findIndex(t=>t==="One Hour Lesson with Coach Joe");if(j<0){day.tasks.unshift("One Hour Lesson with Coach Joe");day.done=day.done.map(k=>k+1);j=0}coachSetDone(i,j,done)}else{localStorage.setItem("swingLabLesson20261117",String(done));update();if(done)coachPreview()}}
+function openTodayPractice(){
+  let b=coachBlock();
+  if(b){let i=b.days.findIndex((_,j)=>coachISO(coachDate(b.start,j))==='2026-11-17');if(i>=0){coach.selected=i;coachSave()}}
+  showScreen('practice');
+  coachRender();
+  document.getElementById('coachSchedule').scrollIntoView({block:'start',behavior:'smooth'});
+}
 /* Coach schedule is kept separately from existing game/streak state. */
 const COACH_KEY='swingLabCoachV1';
 const coachISO=d=>{let x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
