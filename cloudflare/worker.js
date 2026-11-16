@@ -143,6 +143,7 @@ async function route(request,env,url){
     if(!user)return reply({error:'Unauthorized'},401);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
     const rows=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
     const rests=await env.DB.prepare('SELECT date FROM practice_rest_days ORDER BY date').all();
     return reply({awards:rows.results||[],restDays:(rests.results||[]).map(r=>r.date),totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)});
   }
