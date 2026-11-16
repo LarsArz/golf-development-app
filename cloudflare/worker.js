@@ -194,6 +194,30 @@ async function route(request,env,url){
     await env.DB.prepare('DELETE FROM practice_mysteries WHERE date=?').bind(data.date).run();
     return reply({ok:true,deleted:result.meta.changes});
   }
+  // Parent-only integration test: isolated D1 table; never touches real XP, prizes or practice.
+  if(path==='/rewards/mysteries/test'&&method==='POST'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS mystery_test_runs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, prize_id TEXT, bonus_xp INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+    const data=await bodyJSON(request);
+    if(!/^[a-zA-Z0-9_-]{8,80}$/.test(data?.id||''))return reply({error:'Invalid test identifier'},400);
+    const existing=await env.DB.prepare('SELECT id,kind,prize_id,bonus_xp FROM mystery_test_runs WHERE id=?').bind(data.id).first();
+    if(existing)return reply({result:{...existing,prize:mysteryPrizes.find(p=>p.id===existing.prize_id)||null},created:false,isolated:true});
+    const roll=crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
+    let kind='none',prize=null,bonus=0;
+    if(roll<.055){kind='bonus';bonus=100}
+    else if(roll<.10){kind='prize';prize=mysteryPrizes[crypto.getRandomValues(new Uint32Array(1))[0]%mysteryPrizes.length].id}
+    const saved=await env.DB.prepare('INSERT INTO mystery_test_runs(id,kind,prize_id,bonus_xp) VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING').bind(data.id,kind,prize,bonus).run();
+    const row=await env.DB.prepare('SELECT id,kind,prize_id,bonus_xp FROM mystery_test_runs WHERE id=?').bind(data.id).first();
+    return reply({result:{...row,prize:mysteryPrizes.find(p=>p.id===row.prize_id)||null},created:saved.meta.changes===1,isolated:true});
+  }
+  if(path==='/rewards/mysteries/test'&&method==='DELETE'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS mystery_test_runs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, prize_id TEXT, bonus_xp INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+    const data=await bodyJSON(request);
+    if(!/^[a-zA-Z0-9_-]{8,80}$/.test(data?.id||''))return reply({error:'Invalid test identifier'},400);
+    const deleted=await env.DB.prepare('DELETE FROM mystery_test_runs WHERE id=?').bind(data.id).run();
+    return reply({ok:true,deleted:deleted.meta.changes,isolated:true});
+  }
   if(path==='/rewards/mysteries'&&method==='GET'){
     if(!user)return reply({error:'Unauthorized'},401);
     await ensureMysteries(env);
