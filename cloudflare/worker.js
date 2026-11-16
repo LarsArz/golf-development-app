@@ -95,8 +95,10 @@ async function route(request,env,url){
     const start=url.searchParams.get('start'),end=url.searchParams.get('end');
     if(!/^\d{4}-\d{2}-\d{2}$/.test(start||'')||!/^\d{4}-\d{2}-\d{2}$/.test(end||'')||end<start)return reply({error:'Valid start and end dates required'},400);
     const rows=await env.DB.prepare('SELECT date,assignments_json FROM practice_days WHERE date BETWEEN ? AND ? ORDER BY date').bind(start,end).all();
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
+    const rests=await env.DB.prepare('SELECT date FROM practice_rest_days WHERE date BETWEEN ? AND ?').bind(start,end).all();
     const done=await env.DB.prepare('SELECT date,task_index FROM practice_completion WHERE date BETWEEN ? AND ? ORDER BY date,task_index').bind(start,end).all();
-    return reply({days:(rows.results||[]).map(r=>({date:r.date,tasks:JSON.parse(r.assignments_json)})),completed:done.results||[]});
+    return reply({days:(rows.results||[]).map(r=>({date:r.date,tasks:JSON.parse(r.assignments_json)})),completed:done.results||[],restDays:(rests.results||[]).map(r=>r.date)});
   }
   if(path==='/schedule/day'&&method==='PUT'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
@@ -106,6 +108,18 @@ async function route(request,env,url){
     await env.DB.prepare('INSERT INTO practice_days(date,assignments_json,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(date) DO UPDATE SET assignments_json=excluded.assignments_json,updated_at=CURRENT_TIMESTAMP').bind(data.date,JSON.stringify(tasks)).run();
     // Discard stale completion indices if the parent edits assignments.
     await env.DB.prepare('DELETE FROM practice_completion WHERE date=?').bind(data.date).run();
+    return reply({ok:true});
+  }
+  if(path==='/schedule/rest'&&method==='PUT'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    const data=await bodyJSON(request);
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||typeof data?.rest!=='boolean')return reply({error:'Invalid rest day'},400);
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
+    if(data.rest){
+      const row=await env.DB.prepare('SELECT assignments_json FROM practice_days WHERE date=?').bind(data.date).first();
+      if(row&&JSON.parse(row.assignments_json).length)return reply({error:'Remove assigned tasks before marking rest'},409);
+      await env.DB.prepare('INSERT INTO practice_rest_days(date) VALUES(?) ON CONFLICT(date) DO NOTHING').bind(data.date).run();
+    }else await env.DB.prepare('DELETE FROM practice_rest_days WHERE date=?').bind(data.date).run();
     return reply({ok:true});
   }
   if(path==='/store'&&method==='GET'){
@@ -129,7 +143,8 @@ async function route(request,env,url){
     if(!user)return reply({error:'Unauthorized'},401);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
     const rows=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
-    return reply({awards:rows.results||[],totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)});
+    const rests=await env.DB.prepare('SELECT date FROM practice_rest_days ORDER BY date').all();
+    return reply({awards:rows.results||[],restDays:(rests.results||[]).map(r=>r.date),totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)});
   }
   if(path==='/schedule/completion'&&method==='PUT'){
     if(!user)return reply({error:'Unauthorized'},401);
