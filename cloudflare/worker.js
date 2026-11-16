@@ -26,6 +26,41 @@ async function countAttempt(env,bucket,limit){
   const row=await env.DB.prepare('SELECT failures FROM auth_attempts WHERE bucket=?').bind(bucket).first();
   return row.failures<=limit;
 }
+
+const mysteryPrizes=[
+  {id:'spinach',name:'Skip Dinner Spinach',icon:'🥬'},
+  {id:'froyo',name:'$5 Froyo',icon:'🍦'},
+  {id:'goodgood',name:'$5 Good Good Credit',icon:'⛳'},
+  {id:'takeout',name:'Pick Takeout Any Night (Chick-fil-A, Santo Matador, Shake Shack)',icon:'🍔'},
+  {id:'gaming',name:'$10 Roblox/Fortnite Credit',icon:'🎮'},
+  {id:'cash20',name:'$20 Cash',icon:'💵'},
+  {id:'breakfast',name:'Breakfast at Another Broken Egg',icon:'🥞'},
+  {id:'steak',name:'Steak Dinner',icon:'🥩'},
+  {id:'hat',name:'Golf Hat',icon:'🧢'}
+];
+async function ensureMysteries(env){
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS practice_mysteries (date TEXT PRIMARY KEY, kind TEXT NOT NULL, prize_id TEXT, bonus_xp INTEGER NOT NULL DEFAULT 0, fulfilled INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+}
+async function drawMystery(env,date){
+  await ensureMysteries(env);
+  const existing=await env.DB.prepare('SELECT date,kind,prize_id,bonus_xp,fulfilled FROM practice_mysteries WHERE date=?').bind(date).first();
+  if(existing)return {mystery:existing,newDraw:false};
+  const roll=crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
+  let kind='none',prize=null,bonus=0;
+  if(roll<.055){kind='bonus';bonus=100}
+  else if(roll<.10){
+    kind='prize';
+    const prior=await env.DB.prepare("SELECT prize_id FROM practice_mysteries WHERE kind='prize' AND prize_id IS NOT NULL").all();
+    const used=new Set((prior.results||[]).map(r=>r.prize_id));
+    const choices=mysteryPrizes.filter(p=>!used.has(p.id));
+    const pool=choices.length?choices:mysteryPrizes;
+    prize=pool[crypto.getRandomValues(new Uint32Array(1))[0]%pool.length].id;
+  }
+  const result=await env.DB.prepare('INSERT INTO practice_mysteries(date,kind,prize_id,bonus_xp) VALUES(?,?,?,?) ON CONFLICT(date) DO NOTHING').bind(date,kind,prize,bonus).run();
+  const mystery=await env.DB.prepare('SELECT date,kind,prize_id,bonus_xp,fulfilled FROM practice_mysteries WHERE date=?').bind(date).first();
+  return {mystery,newDraw:result.meta.changes===1};
+}
+
 async function route(request,env,url){
   const path=url.pathname,method=request.method;
   if(path==='/health'&&method==='GET'){
@@ -155,15 +190,33 @@ async function route(request,env,url){
     if(completion.n!==0)return reply({error:'Cannot clear award while lesson is checked'},409);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
     const result=await env.DB.prepare('DELETE FROM practice_rewards WHERE date=?').bind(data.date).run();
+    await ensureMysteries(env);
+    await env.DB.prepare('DELETE FROM practice_mysteries WHERE date=?').bind(data.date).run();
     return reply({ok:true,deleted:result.meta.changes});
+  }
+  if(path==='/rewards/mysteries'&&method==='GET'){
+    if(!user)return reply({error:'Unauthorized'},401);
+    await ensureMysteries(env);
+    const rows=await env.DB.prepare('SELECT date,kind,prize_id,bonus_xp,fulfilled FROM practice_mysteries ORDER BY date').all();
+    return reply({mysteries:(rows.results||[]).map(r=>({...r,prize:mysteryPrizes.find(p=>p.id===r.prize_id)||null}))});
+  }
+  if(path==='/rewards/mysteries/fulfill'&&method==='POST'){
+    if(user?.role!=='parent')return reply({error:'Parent access required'},403);
+    const data=await bodyJSON(request);
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||''))return reply({error:'Invalid date'},400);
+    await ensureMysteries(env);
+    await env.DB.prepare("UPDATE practice_mysteries SET fulfilled=1 WHERE date=? AND kind='prize'").bind(data.date).run();
+    return reply({ok:true});
   }
   if(path==='/rewards/progress'&&method==='GET'){
     if(!user)return reply({error:'Unauthorized'},401);
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
     const rows=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
+    await ensureMysteries(env);
+    const bonuses=await env.DB.prepare("SELECT COALESCE(SUM(bonus_xp),0) AS total FROM practice_mysteries WHERE date IN (SELECT date FROM practice_rewards)").first();
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
     const rests=await env.DB.prepare('SELECT date FROM practice_rest_days ORDER BY date').all();
-    return reply({awards:rows.results||[],restDays:(rests.results||[]).map(r=>r.date),totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)});
+    return reply({awards:rows.results||[],restDays:(rests.results||[]).map(r=>r.date),totalXP:(rows.results||[]).reduce((n,r)=>n+r.xp,0)+(bonuses?.total||0),bonusXP:bonuses?.total||0});
   }
   if(path==='/schedule/completion'&&method==='PUT'){
     if(!user)return reply({error:'Unauthorized'},401);
@@ -176,13 +229,14 @@ async function route(request,env,url){
     else await env.DB.prepare('DELETE FROM practice_completion WHERE date=? AND task_index=?').bind(data.date,data.index).run();
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rewards (date TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 100, awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
     const completed=await env.DB.prepare('SELECT COUNT(*) AS count FROM practice_completion WHERE date=?').bind(data.date).first();
-    let awarded=false;
+    let awarded=false,mystery=null,newDraw=false;
     if(tasks.length>0&&completed.count===tasks.length){
       const reward=await env.DB.prepare('INSERT INTO practice_rewards(date,xp) VALUES(?,100) ON CONFLICT(date) DO NOTHING').bind(data.date).run();
       awarded=reward.meta.changes===1;
+      const draw=await drawMystery(env,data.date);mystery=draw.mystery;newDraw=draw.newDraw;
     }
     const awards=await env.DB.prepare('SELECT date,xp FROM practice_rewards ORDER BY date').all();
-    return reply({ok:true,awarded,awards:awards.results||[]});
+    return reply({ok:true,awarded,awards:awards.results||[],mystery:newDraw?{...mystery,prize:mysteryPrizes.find(p=>p.id===mystery.prize_id)||null}:null});
   }
   return reply({error:'Not found'},404);
 }
