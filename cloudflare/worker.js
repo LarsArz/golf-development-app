@@ -141,7 +141,7 @@ async function route(request,env,url){
   if(path==='/schedule/day'&&method==='PUT'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
     const data=await bodyJSON(request);
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500)||!Array.isArray(data?.descriptions??[])||(data.descriptions??[]).some(d=>typeof d!=='string'||d.length>2000))return reply({error:'Invalid practice day'},400);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500)||!Array.isArray(data?.descriptions??[])||(data.descriptions??[]).some(d=>typeof d!=='string'||d.length>2000))return reply({error:'Invalid practice day'},400);
     const tasks=data.tasks.map(t=>t.trim()),descriptions=tasks.map((_,i)=>(data.descriptions?.[i]||'').trim());
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_task_descriptions (date TEXT PRIMARY KEY, descriptions_json TEXT NOT NULL)').run();
     const previous=await env.DB.prepare('SELECT assignments_json FROM practice_days WHERE date=?').bind(data.date).first();
