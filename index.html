@@ -59,7 +59,7 @@
 </div><div><div class="brand-name">The Swing Lab</div><div class="brand-tag">Hard Work Pays Off.</div></div></div><div class="avatar">M</div></div></header>
 
 <section class="page screen" id="homeScreen">
-<div class="hello"><div class="eyebrow" style="color:var(--red);font-weight:900">COACH’S PLAN • TUESDAY, NOVEMBER 17</div><h1>Today's Practice</h1><p class="subtle">Show up. Do the work. Keep building.</p></div>
+<div class="hello"><div class="eyebrow" style="color:var(--red);font-weight:900"><span id="homeDateTop">COACH’S PLAN</span></div><h1>Today's Practice</h1><p class="subtle">Show up. Do the work. Keep building.</p></div>
 <div class="summary">
 <div class="summary-card"><div class="summary-icon">🔥</div><div class="summary-number" id="homeStreak">1</div><div class="summary-label">Day Streak</div></div>
 <div class="summary-card"><div class="summary-icon">⚡</div><div class="summary-number" id="homeXp">0</div><div class="summary-label">Total XP</div></div>
@@ -68,14 +68,11 @@
 
 
 <div class="card today">
-<div class="today-head"><div class="eyebrow" style="color:var(--red);font-weight:900">COACH’S PLAN • TUESDAY, NOVEMBER 17</div><h2>One Hour Lesson with Coach Joe</h2><div class="today-meta">60 minutes • Golf lesson</div></div>
+<div class="today-head"><div class="eyebrow" style="color:var(--red);font-weight:900"><span id="homeDateCard">COACH’S PLAN</span></div><h2 id="homePlanTitle">Today’s Assignments</h2><div class="today-meta" id="homePlanMeta">Coach Joe’s practice plan</div></div>
 <div class="today-progress"><div class="progress-row"><span>Today's progress</span><span id="progressText">0 of 1 complete</span></div><div class="bar light"><div class="fill" id="practiceBar"></div></div></div>
-<div class="assignment-list"><div class="assignment" role="button" tabindex="0" onclick="openTodayPractice()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTodayPractice()}" style="cursor:pointer"><div class="assignment-icon">🏌️‍♀️</div><div class="assignment-copy"><div class="assignment-title">One Hour Lesson with Coach Joe</div><div class="assignment-detail">60 minutes • Tuesday, November 17</div></div><span id="homeLessonStatus" style="font-size:15px;font-weight:800;color:var(--red);white-space:nowrap">Open →</span></div></div>
+<div class="assignment-list" id="homeAssignmentList"></div>
 </div>
-<div class="card"><div class="row"><h2>Coming Up</h2><strong style="color:var(--red)">Next on the calendar</strong></div>
-<div class="upcoming"><div class="date"><div><strong>18</strong><span>WED</span></div></div><div><div class="up-title">Coach's Plan</div><div class="up-detail">Wednesday, November 18</div></div></div>
-<div class="upcoming"><div class="date"><div><strong>19</strong><span>THU</span></div></div><div><div class="up-title">Health 360</div><div class="up-detail">Thursday, November 19</div></div></div>
-</div>
+<div class="card"><div class="row"><h2>Coming Up</h2><strong style="color:var(--red)">Next on the calendar</strong></div><div id="homeUpcoming"></div></div>
 </section>
 
 <section class="page screen hidden" id="practiceScreen">
@@ -273,12 +270,27 @@ function mark(card,detail,status,done,text){if(done){document.getElementById(car
 function update(){
 homeStreak.textContent=state.streak;homeXp.textContent=state.xp;
 document.getElementById("settingsXp").textContent=state.xp;
-const block=typeof coachBlock==="function"?coachBlock():null;const lessonDay=block&&block.days.find((_,i)=>coachISO(coachDate(block.start,i))==="2026-11-17");const lessonDone=lessonDay?lessonDay.tasks.length>0&&lessonDay.tasks.every((_,j)=>lessonDay.done.includes(j)):localStorage.getItem("swingLabLesson20261117")==="true";document.getElementById("homeLessonStatus").textContent=lessonDone?"✓ Done":"Open →";progressText.textContent=lessonDone?"1 of 1 complete":"0 of 1 complete";practiceBar.style.width=lessonDone?"100%":"0%";
+const block=typeof coachBlock==='function'?coachBlock():null;
+const today=coachISO(new Date()),todayDate=new Date(today+'T12:00:00');
+const dateLabel=todayDate.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+document.getElementById('homeDateTop').textContent='COACH’S PLAN • '+dateLabel;
+document.getElementById('homeDateCard').textContent='COACH’S PLAN • '+dateLabel;
+const dayIndex=block?Math.round((todayDate-new Date(block.start+'T12:00:00'))/86400000):-1;
+const day=block&&dayIndex>=0&&dayIndex<block.days.length?block.days[dayIndex]:null;
+const tasks=day?.tasks||[],done=day?.done||[],completed=tasks.filter((_,j)=>done.includes(j)).length;
+document.getElementById('homePlanTitle').textContent=tasks.length?(tasks.length===1?tasks[0]:'Today’s Assignments'):'No Assignments Today';
+document.getElementById('homePlanMeta').textContent=tasks.length?tasks.length+' assignment'+(tasks.length===1?'':'s')+' • '+todayDate.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Check the Practice calendar for upcoming assignments';
+progressText.textContent=completed+' of '+tasks.length+' complete';
+practiceBar.style.width=tasks.length?Math.round(completed/tasks.length*100)+'%':'0%';
+document.getElementById('homeAssignmentList').innerHTML=tasks.length?tasks.map((task,j)=>'<div class="assignment" role="button" tabindex="0" onclick="openTodayPractice()" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openTodayPractice()}" style="cursor:pointer"><div class="assignment-icon">🏌️‍♀️</div><div class="assignment-copy"><div class="assignment-title">'+coachEscape(task)+'</div>'+((day.descriptions||[])[j]?'<div class="assignment-detail">'+coachEscape(day.descriptions[j])+'</div>':'')+'</div><span style="font-size:15px;font-weight:800;color:var(--red);white-space:nowrap">'+(done.includes(j)?'✓ Done':'Open →')+'</span></div>').join(''):'<div style="padding:18px;color:#666">No practice assignments scheduled for today.</div>';
+const upcoming=[];
+if(block)for(let k=Math.max(0,dayIndex+1);k<block.days.length&&upcoming.length<2;k++){const d=block.days[k];if(d.tasks.length){let date=coachDate(block.start,k);upcoming.push('<div class="upcoming"><div class="date"><div><strong>'+date.getDate()+'</strong><span>'+date.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()+'</span></div></div><div><div class="up-title">'+coachEscape(d.tasks.length===1?d.tasks[0]:d.tasks.length+' practice assignments')+'</div><div class="up-detail">'+date.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+'</div></div></div>')}}
+document.getElementById('homeUpcoming').innerHTML=upcoming.join('')||'<p class="subtle">No upcoming assignments in this two-week block.</p>';
 }
 
 function openTodayPractice(){
   let b=coachBlock();
-  if(b){let i=b.days.findIndex((_,j)=>coachISO(coachDate(b.start,j))==='2026-11-17');if(i>=0){coach.selected=i;coachSave()}}
+  if(b){let i=b.days.findIndex((_,j)=>coachISO(coachDate(b.start,j))===coachISO(new Date()));if(i>=0){coach.selected=i;coachSave()}}
   showScreen('practice');
   coachRender();
   document.getElementById('coachSchedule').scrollIntoView({block:'start',behavior:'smooth'});
