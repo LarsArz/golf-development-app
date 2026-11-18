@@ -132,17 +132,23 @@ async function route(request,env,url){
     const rows=await env.DB.prepare('SELECT date,assignments_json FROM practice_days WHERE date BETWEEN ? AND ? ORDER BY date').bind(start,end).all();
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_rest_days (date TEXT PRIMARY KEY)').run();
     const rests=await env.DB.prepare('SELECT date FROM practice_rest_days WHERE date BETWEEN ? AND ?').bind(start,end).all();
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_task_descriptions (date TEXT PRIMARY KEY, descriptions_json TEXT NOT NULL)').run();
+    const descriptions=await env.DB.prepare('SELECT date,descriptions_json FROM practice_task_descriptions WHERE date BETWEEN ? AND ?').bind(start,end).all();
+    const descriptionMap=new Map((descriptions.results||[]).map(r=>[r.date,JSON.parse(r.descriptions_json)]));
     const done=await env.DB.prepare('SELECT date,task_index FROM practice_completion WHERE date BETWEEN ? AND ? ORDER BY date,task_index').bind(start,end).all();
-    return reply({days:(rows.results||[]).map(r=>({date:r.date,tasks:JSON.parse(r.assignments_json)})),completed:done.results||[],restDays:(rests.results||[]).map(r=>r.date)});
+    return reply({days:(rows.results||[]).map(r=>({date:r.date,tasks:JSON.parse(r.assignments_json),descriptions:descriptionMap.get(r.date)||[]})),completed:done.results||[],restDays:(rests.results||[]).map(r=>r.date)});
   }
   if(path==='/schedule/day'&&method==='PUT'){
     if(user?.role!=='parent')return reply({error:'Parent access required'},403);
     const data=await bodyJSON(request);
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500))return reply({error:'Invalid practice day'},400);
-    const tasks=data.tasks.map(t=>t.trim());
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data?.date||'')||!Array.isArray(data?.tasks)||data.tasks.length>30||data.tasks.some(t=>typeof t!=='string'||!t.trim()||t.length>500)||!Array.isArray(data?.descriptions??[])||(data.descriptions??[]).some(d=>typeof d!=='string'||d.length>2000))return reply({error:'Invalid practice day'},400);
+    const tasks=data.tasks.map(t=>t.trim()),descriptions=tasks.map((_,i)=>(data.descriptions?.[i]||'').trim());
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS practice_task_descriptions (date TEXT PRIMARY KEY, descriptions_json TEXT NOT NULL)').run();
+    const previous=await env.DB.prepare('SELECT assignments_json FROM practice_days WHERE date=?').bind(data.date).first();
     await env.DB.prepare('INSERT INTO practice_days(date,assignments_json,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(date) DO UPDATE SET assignments_json=excluded.assignments_json,updated_at=CURRENT_TIMESTAMP').bind(data.date,JSON.stringify(tasks)).run();
-    // Discard stale completion indices if the parent edits assignments.
-    await env.DB.prepare('DELETE FROM practice_completion WHERE date=?').bind(data.date).run();
+    await env.DB.prepare('INSERT INTO practice_task_descriptions(date,descriptions_json) VALUES(?,?) ON CONFLICT(date) DO UPDATE SET descriptions_json=excluded.descriptions_json').bind(data.date,JSON.stringify(descriptions)).run();
+    // Updating instructions alone must never erase existing checkmarks.
+    if(previous&&JSON.stringify(JSON.parse(previous.assignments_json))!==JSON.stringify(tasks))await env.DB.prepare('DELETE FROM practice_completion WHERE date=?').bind(data.date).run();
     return reply({ok:true});
   }
   if(path==='/schedule/rest'&&method==='PUT'){
